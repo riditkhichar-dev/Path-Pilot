@@ -43,3 +43,15 @@ export interface CareerQuizQuestion {
     trait: 'tech' | 'creative' | 'business' | 'science';
   }[];
 }
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  role?: string;
+  avatar?: string;
+  authProvider?: 'email' | 'google' | 'github';
+  createdAt: string;
+}
+
+export type AuthMode = 'login' | 'signup' | 'forgot';

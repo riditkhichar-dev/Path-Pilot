@@ -14,35 +14,87 @@ import { Footer } from './components/Footer';
 import { ChatbotDrawer } from './components/ChatbotDrawer';
 import { DemoVideoModal } from './components/Modals/DemoVideoModal';
 import { AssessmentModal } from './components/Modals/AssessmentModal';
+import { AuthModal } from './components/Modals/AuthModal';
+import { authService } from './services/authService';
+import { User, AuthMode } from './types';
 import { Bot, Sparkles } from 'lucide-react';
 
 export function App() {
-  const [isDarkMode, setIsDarkMode] = useState(true);
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const savedTheme = localStorage.getItem('pathpilot_theme');
+    return savedTheme ? savedTheme === 'dark' : true;
+  });
+
+  const [user, setUser] = useState<User | null>(() => authService.getCurrentUser());
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isAssessmentOpen, setIsAssessmentOpen] = useState(false);
   const [isWatchDemoOpen, setIsWatchDemoOpen] = useState(false);
+  
+  // Auth Modal state
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<AuthMode>('login');
 
   useEffect(() => {
     if (isDarkMode) {
       document.documentElement.classList.add('dark');
+      localStorage.setItem('pathpilot_theme', 'dark');
     } else {
       document.documentElement.classList.remove('dark');
+      localStorage.setItem('pathpilot_theme', 'light');
     }
   }, [isDarkMode]);
 
+  useEffect(() => {
+    // Fetch current user from Supabase on mount (Step 9)
+    authService.getSupabaseUser().then((currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+      }
+    });
+
+    const subscription = authService.onAuthStateChange((authUser) => {
+      setUser(authUser);
+    });
+
+    return () => {
+      if (subscription && typeof subscription.unsubscribe === 'function') {
+        subscription.unsubscribe();
+      }
+    };
+  }, []);
+
+  const handleOpenAuth = (mode: AuthMode = 'login') => {
+    setAuthMode(mode);
+    setIsAuthOpen(true);
+  };
+
+  const handleLogout = async () => {
+    await authService.logout();
+    setUser(null);
+  };
+
+  const handleAuthSuccess = (authenticatedUser: User) => {
+    setUser(authenticatedUser);
+  };
+
   return (
-    <div className="min-h-screen bg-[#0F172A] text-slate-100 font-inter selection:bg-blue-600 selection:text-white">
+    <div className={`min-h-screen font-inter selection:bg-blue-600 selection:text-white transition-colors duration-300 ${
+      isDarkMode ? 'bg-[#0F172A] text-slate-100' : 'bg-slate-50 text-slate-900'
+    }`}>
       {/* Sticky Navigation */}
       <Navbar
         onOpenChat={() => setIsChatOpen(true)}
         onOpenAssessment={() => setIsAssessmentOpen(true)}
         isDarkMode={isDarkMode}
         onToggleDarkMode={() => setIsDarkMode(!isDarkMode)}
+        user={user}
+        onOpenAuth={handleOpenAuth}
+        onLogout={handleLogout}
       />
 
       {/* Hero Section */}
       <Hero
-        onOpenAssessment={() => setIsAssessmentOpen(true)}
+        onOpenAssessment={() => (user ? setIsAssessmentOpen(true) : handleOpenAuth('signup'))}
         onOpenWatchDemo={() => setIsWatchDemoOpen(true)}
         onOpenChat={() => setIsChatOpen(true)}
       />
@@ -52,29 +104,29 @@ export function App() {
 
       {/* Features Grid */}
       <Features
-        onOpenAssessment={() => setIsAssessmentOpen(true)}
+        onOpenAssessment={() => (user ? setIsAssessmentOpen(true) : handleOpenAuth('signup'))}
         onOpenChat={() => setIsChatOpen(true)}
       />
 
       {/* Interactive Sandbox Demo */}
       <InteractiveDemo
-        onOpenAssessment={() => setIsAssessmentOpen(true)}
+        onOpenAssessment={() => (user ? setIsAssessmentOpen(true) : handleOpenAuth('signup'))}
         onOpenChat={() => setIsChatOpen(true)}
       />
 
       {/* How It Works Stepper */}
       <HowItWorks
-        onOpenAssessment={() => setIsAssessmentOpen(true)}
+        onOpenAssessment={() => (user ? setIsAssessmentOpen(true) : handleOpenAuth('signup'))}
       />
 
       {/* Why Choose PATHPILOT */}
       <WhyChooseUs
-        onOpenAssessment={() => setIsAssessmentOpen(true)}
+        onOpenAssessment={() => (user ? setIsAssessmentOpen(true) : handleOpenAuth('signup'))}
       />
 
       {/* SaaS Platform Preview */}
       <PlatformPreview
-        onOpenAssessment={() => setIsAssessmentOpen(true)}
+        onOpenAssessment={() => (user ? setIsAssessmentOpen(true) : handleOpenAuth('signup'))}
         onOpenChat={() => setIsChatOpen(true)}
       />
 
@@ -86,13 +138,13 @@ export function App() {
 
       {/* High Impact Call-to-Action */}
       <CTASection
-        onOpenAssessment={() => setIsAssessmentOpen(true)}
+        onOpenAssessment={() => (user ? setIsAssessmentOpen(true) : handleOpenAuth('signup'))}
         onOpenChat={() => setIsChatOpen(true)}
       />
 
       {/* Footer */}
       <Footer
-        onOpenAssessment={() => setIsAssessmentOpen(true)}
+        onOpenAssessment={() => (user ? setIsAssessmentOpen(true) : handleOpenAuth('signup'))}
         onOpenChat={() => setIsChatOpen(true)}
       />
 
@@ -121,7 +173,7 @@ export function App() {
       <DemoVideoModal
         isOpen={isWatchDemoOpen}
         onClose={() => setIsWatchDemoOpen(false)}
-        onOpenAssessment={() => setIsAssessmentOpen(true)}
+        onOpenAssessment={() => (user ? setIsAssessmentOpen(true) : handleOpenAuth('signup'))}
       />
 
       {/* Career Assessment Quiz Modal */}
@@ -129,6 +181,14 @@ export function App() {
         isOpen={isAssessmentOpen}
         onClose={() => setIsAssessmentOpen(false)}
         onOpenChat={() => setIsChatOpen(true)}
+      />
+
+      {/* Authentication Modal (Login / Sign Up / Forgot Password) */}
+      <AuthModal
+        isOpen={isAuthOpen}
+        onClose={() => setIsAuthOpen(false)}
+        initialMode={authMode}
+        onAuthSuccess={handleAuthSuccess}
       />
     </div>
   );

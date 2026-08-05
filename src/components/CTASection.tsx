@@ -8,17 +8,17 @@ interface CTASectionProps {
 
 export const CTASection: React.FC<CTASectionProps> = ({ onOpenAssessment, onOpenChat }) => {
   return (
-    <section className="py-20 bg-slate-950 relative overflow-hidden">
+    <section className="py-20 bg-slate-50 dark:bg-slate-950 transition-colors relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Glow backdrop */}
-        <div className="relative rounded-3xl p-8 sm:p-14 overflow-hidden border border-blue-500/40 bg-gradient-to-br from-blue-950/80 via-slate-900 to-indigo-950/80 shadow-2xl text-center space-y-6">
+        <div className="relative rounded-3xl p-8 sm:p-14 overflow-hidden border border-blue-500/30 dark:border-blue-500/40 bg-gradient-to-br from-blue-900/90 via-slate-900 to-indigo-950/90 shadow-2xl text-center space-y-6">
           
           <div className="absolute top-0 right-0 w-80 h-80 bg-orange-500/15 blur-[120px] rounded-full pointer-events-none" />
           <div className="absolute bottom-0 left-0 w-80 h-80 bg-blue-600/20 blur-[120px] rounded-full pointer-events-none" />
 
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-orange-500/20 border border-orange-500/40 text-orange-300 text-xs font-bold uppercase tracking-wider">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-orange-500/20 border border-orange-500/40 text-orange-300 text-xs font-bold uppercase tracking-wider mx-auto">
             <Sparkles className="w-4 h-4 text-orange-400" /> Start Free in Under 60 Seconds
           </div>
 
@@ -27,7 +27,7 @@ export const CTASection: React.FC<CTASectionProps> = ({ onOpenAssessment, onOpen
             Start Your Career Journey <span className="gradient-text-orange">Today</span>
           </h2>
 
-          <p className="text-base sm:text-xl text-slate-300 max-w-2xl mx-auto font-inter leading-relaxed">
+          <p className="text-base sm:text-xl text-slate-200 max-w-2xl mx-auto font-inter leading-relaxed">
             Join thousands of students using AI to make smarter career decisions, generate personalized learning roadmaps, and build ATS resumes.
           </p>
 
@@ -49,7 +49,7 @@ export const CTASection: React.FC<CTASectionProps> = ({ onOpenAssessment, onOpen
             </button>
           </div>
 
-          <div className="pt-4 flex flex-wrap justify-center items-center gap-6 text-xs text-slate-400 font-medium">
+          <div className="pt-4 flex flex-wrap justify-center items-center gap-6 text-xs text-slate-300 font-medium">
             <span>✔ No Credit Card Required</span>
             <span>✔ Free Forever Student Tier</span>
             <span>✔ 24/7 Groq AI Assistant</span>

@@ -48,7 +48,7 @@ export const HowItWorks: React.FC<HowItWorksProps> = ({ onOpenAssessment }) => {
   ];
 
   return (
-    <section id="how-it-works" className="py-24 bg-slate-950 relative overflow-hidden">
+    <section id="how-it-works" className="py-24 bg-slate-50 dark:bg-slate-950 transition-colors relative overflow-hidden">
       {/* Glow Orbs */}
       <div className="absolute top-1/3 right-0 w-96 h-96 bg-blue-600/10 blur-[160px] rounded-full pointer-events-none" />
 
@@ -56,13 +56,13 @@ export const HowItWorks: React.FC<HowItWorksProps> = ({ onOpenAssessment }) => {
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-4 mb-16">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-300 text-xs font-bold uppercase tracking-wider">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-600 dark:text-blue-300 text-xs font-bold uppercase tracking-wider">
             Simple 4-Step Journey
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white font-sora">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white font-sora">
             How <span className="gradient-text-blue">PATHPILOT</span> Works
           </h2>
-          <p className="text-slate-300 text-base sm:text-lg">
+          <p className="text-slate-600 dark:text-slate-300 text-base sm:text-lg">
             A frictionless pathway designed to take you from student confusion to absolute career clarity.
           </p>
         </div>
@@ -81,8 +81,8 @@ export const HowItWorks: React.FC<HowItWorksProps> = ({ onOpenAssessment }) => {
                   onClick={() => setActiveStep(step.number)}
                   className={`p-5 rounded-2xl border transition-all duration-300 cursor-pointer ${
                     isActive
-                      ? 'bg-slate-900 border-blue-500/60 shadow-xl shadow-blue-950/40 -translate-x-1'
-                      : 'bg-slate-950/60 border-slate-800 hover:border-slate-700 opacity-75 hover:opacity-100'
+                      ? 'bg-white dark:bg-slate-900 border-blue-500/60 shadow-xl shadow-blue-500/10 dark:shadow-blue-950/40 -translate-x-1'
+                      : 'bg-slate-100/80 dark:bg-slate-950/60 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 opacity-75 hover:opacity-100'
                   }`}
                 >
                   <div className="flex items-start gap-4">
@@ -92,15 +92,15 @@ export const HowItWorks: React.FC<HowItWorksProps> = ({ onOpenAssessment }) => {
 
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-orange-400 uppercase tracking-wider">
+                        <span className="text-xs font-bold text-orange-500 dark:text-orange-400 uppercase tracking-wider">
                           STEP {step.number}
                         </span>
-                        <span className="text-xs text-slate-400">• {step.subtitle}</span>
+                        <span className="text-xs text-slate-500 dark:text-slate-400">• {step.subtitle}</span>
                       </div>
-                      <h3 className="text-lg font-bold text-white font-sora">
+                      <h3 className="text-lg font-bold text-slate-900 dark:text-white font-sora">
                         {step.title}
                       </h3>
-                      <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-inter">
+                      <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-inter">
                         {step.description}
                       </p>
                     </div>
@@ -112,29 +112,29 @@ export const HowItWorks: React.FC<HowItWorksProps> = ({ onOpenAssessment }) => {
 
           {/* Right Visual Stepper Screen */}
           <div className="lg:col-span-6">
-            <div className="glass-card p-6 sm:p-8 rounded-3xl border border-slate-800 shadow-2xl relative">
-              <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+            <div className="glass-card p-6 sm:p-8 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl relative">
+              <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full bg-rose-500" />
                   <div className="w-3 h-3 rounded-full bg-amber-500" />
                   <div className="w-3 h-3 rounded-full bg-emerald-500" />
-                  <span className="text-xs text-slate-400 font-mono ml-2">Active Step Simulation</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400 font-mono ml-2">Active Step Simulation</span>
                 </div>
-                <span className="px-2.5 py-1 rounded bg-blue-500/20 text-blue-400 font-bold text-xs">
+                <span className="px-2.5 py-1 rounded bg-blue-500/20 text-blue-600 dark:text-blue-400 font-bold text-xs">
                   Step {activeStep} of 4
                 </span>
               </div>
 
               <div className="py-8 text-center space-y-6">
-                <div className="inline-flex p-5 rounded-3xl bg-slate-900 border border-slate-800 text-blue-400 shadow-inner">
-                  {React.createElement(steps[activeStep - 1].icon, { className: "w-12 h-12 text-orange-400" })}
+                <div className="inline-flex p-5 rounded-3xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-blue-500 shadow-inner">
+                  {React.createElement(steps[activeStep - 1].icon, { className: "w-12 h-12 text-orange-500 dark:text-orange-400" })}
                 </div>
 
                 <div className="space-y-2 max-w-md mx-auto">
-                  <h4 className="text-2xl font-bold text-white font-sora">
+                  <h4 className="text-2xl font-bold text-slate-900 dark:text-white font-sora">
                     {steps[activeStep - 1].title}
                   </h4>
-                  <p className="text-xs sm:text-sm text-slate-300 font-mono bg-slate-900 p-3 rounded-xl border border-slate-800">
+                  <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 font-mono bg-slate-100 dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
                     {steps[activeStep - 1].mockupText}
                   </p>
                 </div>

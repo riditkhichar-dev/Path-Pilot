@@ -15,26 +15,26 @@ export const Hero: React.FC<HeroProps> = ({
   const [activeTab, setActiveTab] = useState<'roadmap' | 'chat' | 'quiz'>('roadmap');
 
   return (
-    <section id="hero" className="relative pt-32 pb-16 md:pt-40 md:pb-24 overflow-hidden bg-slate-950">
+    <section id="hero" className="relative pt-32 pb-16 md:pt-40 md:pb-24 overflow-hidden bg-slate-50 dark:bg-slate-950 transition-colors">
       {/* Subtle Background Glows */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] bg-blue-600/15 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] bg-blue-600/10 dark:bg-blue-600/15 blur-[120px] rounded-full pointer-events-none" />
       <div className="absolute top-1/3 right-12 w-[250px] h-[250px] bg-orange-500/10 blur-[100px] rounded-full pointer-events-none" />
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
         
         {/* Simple Badge */}
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-300 text-xs font-bold uppercase tracking-wider mb-6">
-          <Sparkles className="w-3.5 h-3.5 text-orange-400" />
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-600 dark:text-blue-300 text-xs font-bold uppercase tracking-wider mb-6">
+          <Sparkles className="w-3.5 h-3.5 text-orange-500 dark:text-orange-400" />
           <span>AI-POWERED CAREER GUIDANCE FOR STUDENTS</span>
         </div>
 
         {/* Crisp Headline & Minimal Subheadline */}
         <div className="max-w-3xl mx-auto space-y-4">
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white font-sora leading-tight">
-            Find Your Perfect Career Path with <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-indigo-300 to-orange-400">AI</span>
+          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-slate-900 dark:text-white font-sora leading-tight">
+            Find Your Perfect Career Path with <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-indigo-500 to-orange-500 dark:from-blue-400 dark:via-indigo-300 dark:to-orange-400">AI</span>
           </h1>
 
-          <p className="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto font-inter">
+          <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto font-inter">
             Discover careers matching your interests, generate personalized learning roadmaps, and build your dream future—all in one platform.
           </p>
 
@@ -50,31 +50,31 @@ export const Hero: React.FC<HeroProps> = ({
 
             <button
               onClick={onOpenWatchDemo}
-              className="w-full sm:w-auto px-7 py-3.5 text-sm font-semibold text-slate-300 hover:text-white bg-slate-900/80 hover:bg-slate-800 border border-slate-800 rounded-xl flex items-center justify-center gap-2 transition-all"
+              className="w-full sm:w-auto px-7 py-3.5 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white bg-white dark:bg-slate-900/80 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm"
             >
-              <Play className="w-3.5 h-3.5 fill-current text-blue-400" />
+              <Play className="w-3.5 h-3.5 fill-current text-blue-600 dark:text-blue-400" />
               <span>Watch Demo</span>
             </button>
           </div>
         </div>
 
         {/* Minimal Clean SaaS Visual Container */}
-        <div className="mt-12 max-w-4xl mx-auto glass-card p-3 sm:p-5 rounded-2xl border border-slate-800 shadow-2xl text-left">
+        <div className="mt-12 max-w-4xl mx-auto glass-card p-3 sm:p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl text-left">
           
           {/* Header Bar */}
-          <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-800/80">
+          <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-200 dark:border-slate-800/80">
             <div className="flex items-center gap-2">
               <div className="w-2.5 h-2.5 rounded-full bg-rose-500" />
               <div className="w-2.5 h-2.5 rounded-full bg-amber-500" />
               <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-              <span className="text-xs font-mono text-slate-400 ml-2">PATHPILOT Student Hub</span>
+              <span className="text-xs font-mono text-slate-500 dark:text-slate-400 ml-2">PATHPILOT Student Hub</span>
             </div>
 
-            <div className="flex gap-1 bg-slate-950 p-1 rounded-lg border border-slate-800 text-xs font-semibold">
+            <div className="flex gap-1 bg-slate-100 dark:bg-slate-950 p-1 rounded-lg border border-slate-200 dark:border-slate-800 text-xs font-semibold">
               <button
                 onClick={() => setActiveTab('roadmap')}
                 className={`px-3 py-1 rounded transition-colors ${
-                  activeTab === 'roadmap' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'
+                  activeTab === 'roadmap' ? 'bg-blue-600 text-white' : 'text-slate-600 dark:text-slate-400 hover:text-slate-950 dark:hover:text-white'
                 }`}
               >
                 Roadmap
@@ -82,7 +82,7 @@ export const Hero: React.FC<HeroProps> = ({
               <button
                 onClick={() => setActiveTab('chat')}
                 className={`px-3 py-1 rounded transition-colors ${
-                  activeTab === 'chat' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'
+                  activeTab === 'chat' ? 'bg-blue-600 text-white' : 'text-slate-600 dark:text-slate-400 hover:text-slate-950 dark:hover:text-white'
                 }`}
               >
                 AI Chat
@@ -90,7 +90,7 @@ export const Hero: React.FC<HeroProps> = ({
               <button
                 onClick={() => setActiveTab('quiz')}
                 className={`px-3 py-1 rounded transition-colors ${
-                  activeTab === 'quiz' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'
+                  activeTab === 'quiz' ? 'bg-blue-600 text-white' : 'text-slate-600 dark:text-slate-400 hover:text-slate-950 dark:hover:text-white'
                 }`}
               >
                 Career Match
