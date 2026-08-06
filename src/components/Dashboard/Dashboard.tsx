@@ -140,68 +140,87 @@ interface RoadmapConfig {
 const ROADMAPS_DATA: { [key: string]: RoadmapConfig } = {
   frontend: {
     title: 'Frontend Developer',
-    description: 'Master modern client-side web applications using React, TailwindCSS, build pipelines, and advanced state management tools.',
-    modulesCount: 70,
-    hours: 312,
+    description: 'Master modern client-side web applications using React, TailwindCSS, build pipelines, testing setups, and optimization protocols.',
+    modulesCount: 120,
+    hours: 450,
     enrolled: 'Trending • 449K enrolled',
     steps: [
       { id: 'fe-1', title: 'Internet Protocols & DNS', desc: 'Understand DNS mapping, IP addressing, HTTP request-response headers, and DOM lifecycle.', resources: ['MDN Web Docs', 'HTTP Protocol Overview'] },
       { id: 'fe-2', title: 'HTML5 Semantic Layout & SEO', desc: 'Valid semantic tags, search engine indexing structures, meta fields, and WCAG accessibility standards.', resources: ['HTML Living Standard', 'WCAG Guidelines'] },
       { id: 'fe-3', title: 'CSS3 Grid, Flexbox, & Tailwind Spacings', desc: 'Modern responsive grids, containers, spacing rules, utility tokens, transitions, and layout frameworks.', resources: ['TailwindCSS Docs', 'CSS Grid Garden'] },
       { id: 'fe-4', title: 'JavaScript Engine & Async REST Integration', desc: 'Callbacks, Promises, Async/Await APIs fetch, ES6 syntax patterns, closures, and browser memory cycles.', resources: ['Eloquent JS', 'MDN JS Reference'] },
-      { id: 'fe-5', title: 'React Framework, Rendering, & State Trees', desc: 'Virtual DOM, components lifecycle, state hooks (useState, useEffect), router mechanisms, and Next.js SSR basics.', resources: ['Official React Docs', 'Next.js App Router Guide'] }
+      { id: 'fe-5', title: 'React Framework, Rendering, & State Trees', desc: 'Virtual DOM, components lifecycle, state hooks (useState, useEffect), router mechanisms, and context providers.', resources: ['Official React Docs', 'TypeScript React Cheatsheet'] },
+      { id: 'fe-6', title: 'Next.js App Router, SSR, & RSC', desc: 'Server-side rendering (SSR), static site generation (SSG), React Server Components (RSC), and Server Actions.', resources: ['Next.js App Router Guide', 'RSC Deep Dive'] },
+      { id: 'fe-7', title: 'Frontend Testing (Jest, RTL, & Cypress)', desc: 'Writing unit tests for hooks/components, user interaction mocking, and end-to-end (E2E) UI testing.', resources: ['Jest Documentation', 'Testing Library Guides'] },
+      { id: 'fe-8', title: 'Web Performance Optimization & Vitals', desc: 'Code splitting, dynamic imports, lazy loading assets, image optimization formats, and monitoring Lighthouse Web Vitals.', resources: ['Google Web Vitals', 'Lighthouse Optimization Checklist'] }
     ]
   },
   backend: {
     title: 'Backend Developer',
-    description: 'Build secure server architectures, API routing middleware, structured database schemas, and microservice messaging channels.',
-    modulesCount: 85,
-    hours: 380,
+    description: 'Build secure server architectures, API routing middleware, structured database schemas, microservice messaging channels, and system monitors.',
+    modulesCount: 140,
+    hours: 520,
     enrolled: 'Hot • 320K enrolled',
     steps: [
-      { id: 'be-1', title: 'Server Runtimes & Languages (NodeJS / Go / Python)', desc: 'Concurrences models, thread pools, file management, error catch middlewares, and server frameworks.', resources: ['NodeJS Architecture Guide', 'Go Tour for Beginners'] },
+      { id: 'be-1', title: 'Server Runtimes & Languages (NodeJS / Go / Python)', desc: 'Concurrency models, thread pools, file management, error catch middlewares, and server frameworks.', resources: ['NodeJS Architecture Guide', 'Go Tour for Beginners'] },
       { id: 'be-2', title: 'SQL & NoSQL Database Indexes & ACID Transactions', desc: 'Entity relationships, SQL query indexing, database isolation levels (ACID), Redis cache clusters, and MongoDB queries.', resources: ['PostgreSQL Indexing docs', 'Designing Data-Intensive Applications'] },
       { id: 'be-3', title: 'API Protocols: REST, GraphQL, & gRPC Protobufs', desc: 'API endpoints design, payload serialization formats, gRPC channels, Swagger specifications, and rate limiters.', resources: ['Swagger Spec API Guidelines', 'GraphQL schemas tutorial'] },
       { id: 'be-4', title: 'Security: OAuth2, JWT Sessions, & secure cookies', desc: 'Implementing cross-origin permissions (CORS), secure headers, JWT auth cycles, and password hashing (bcrypt).', resources: ['OWASP Top 10 Security Rules', 'JWT Decoder Guide'] },
-      { id: 'be-5', title: 'Background Processing & Message Queues', desc: 'Asynchronous event listeners, pub/sub architectures, RabbitMQ broker channels, BullMQ jobs, and Redis locks.', resources: ['RabbitMQ official docs', 'BullMQ quickstart'] }
+      { id: 'be-5', title: 'Background Processing & Message Queues', desc: 'Asynchronous event listeners, pub/sub architectures, RabbitMQ broker channels, BullMQ jobs, and Redis locks.', resources: ['RabbitMQ official docs', 'BullMQ quickstart'] },
+      { id: 'be-6', title: 'Microservices & Architectural Patterns', desc: 'Designing distributed architectures, API gateways, database per service patterns, and event sourcing principles.', resources: ['Microservices.io guide', 'Martin Fowler Blog'] },
+      { id: 'be-7', title: 'Backend Testing: Unit, Integration, & Mocking', desc: 'Writing mock tests with Sinon/Mockery, DB isolation testing, and API integration validations.', resources: ['Backend Testing Cookbook', 'SuperTest guide'] },
+      { id: 'be-8', title: 'APM Monitoring, Metrics, & Structured Logging', desc: 'Integrating Prometheus metric collectors, Grafana dashboard visualization, Winston/Zap logging, and ELK stack search.', resources: ['Prometheus Quickstart', 'Winston Logging Best Practices'] }
     ]
   },
   fullstack: {
     title: 'Full-Stack Developer',
-    description: 'Integrate responsive user interfaces with server routers and relational schemas. Master end-to-end fullstack lifecycle deployment.',
-    modulesCount: 110,
-    hours: 490,
+    description: 'Integrate responsive user interfaces with server routers and relational schemas. Master payment webhooks and scalable serverless environments.',
+    modulesCount: 160,
+    hours: 600,
     enrolled: 'Popular • 510K enrolled',
     steps: [
-      { id: 'fs-1', title: 'Next.js, Server Actions, & React Server Components', desc: 'Server side rendering (SSR), static site generators (SSG), client hydration patterns, and Next routing.', resources: ['NextJS Routing docs', 'React Server Components guide'] },
+      { id: 'fs-1', title: 'Next.js, Server Actions, & RSC', desc: 'Server side rendering (SSR), static site generators (SSG), client hydration patterns, and Next routing.', resources: ['NextJS Routing docs', 'React Server Components guide'] },
       { id: 'fs-2', title: 'ORMs (Prisma / Drizzle) & Schema Migrations', desc: 'Type-safe database queries, transactional statements, foreign keys constraints, and migration scripts.', resources: ['Prisma Client guides', 'Drizzle ORM quickstart'] },
       { id: 'fs-3', title: 'Session Stores & Third-Party Auth Integrations', desc: 'NextAuth providers configuration, multi-factor auth schemes, user tables management, and credentials providers.', resources: ['NextAuth.js Documentation', 'Auth0 custom strategies'] },
-      { id: 'fs-4', title: 'Docker Containers & Cloud deployment pipelines', desc: 'Multi-stage dockerfiles, environment configuration maps, AWS EC2 containers deployment, and serverless edge functions.', resources: ['Docker reference manual', 'AWS Serverless Developer Guide'] }
+      { id: 'fs-4', title: 'Docker Containers & Cloud deployment pipelines', desc: 'Multi-stage dockerfiles, environment configuration maps, AWS EC2 containers deployment, and serverless edge functions.', resources: ['Docker reference manual', 'AWS Serverless Developer Guide'] },
+      { id: 'fs-5', title: 'API Gateways & Edge Middleware Routing', desc: 'Configuring custom subdomains routing, geo-blocking middleware, request pre-validation, and JWT extraction at edge.', resources: ['Vercel Edge Middleware', 'Cloudflare Workers docs'] },
+      { id: 'fs-6', title: 'Real-time Messaging (WebSockets & SSE)', desc: 'Integrating event listeners with Socket.io, real-time message broadcasting, and server-sent events (SSE).', resources: ['Socket.io docs', 'SSE Guide'] },
+      { id: 'fs-7', title: 'Payment Gateways & Secure Webhooks (Stripe)', desc: 'Managing Stripe customer portal checkouts, webhook signature verification, and event processing.', resources: ['Stripe API reference', 'Webhooks debugging guide'] },
+      { id: 'fs-8', title: 'Serverless Databases & Caching at Edge', desc: 'Distributed database instances (PlanetScale, Neon), caching queries using Vercel KV, and global replication.', resources: ['Neon serverless Postgres docs', 'Vercel KV guide'] }
     ]
   },
   devops: {
     title: 'DevOps & Cloud Engineer',
     description: 'Automate software build workflows, orchestrate container clusters, manage infrastructure-as-code scripts, and monitor system metrics.',
-    modulesCount: 75,
-    hours: 340,
+    modulesCount: 130,
+    hours: 480,
     enrolled: 'High Demand • 190K enrolled',
     steps: [
       { id: 'do-1', title: 'Linux Administration, Shell Scripting, & SSH', desc: 'Unix directory permissions, process management, Cron schedulers, Bash script automations, and secure SSH tunnels.', resources: ['Linux Command Line Bible', 'Shell Scripting guides'] },
-      { id: 'do-2', title: 'Docker Orchestration & Kubernetes Pods', desc: 'Multi-stage docker caching, network configurations, Kubernetes pods, ingress controllers, services, and replica sets.', resources: ['Kubernetes official tutorials', 'Docker Multi-stage guide'] },
-      { id: 'do-3', title: 'Infrastructure as Code: Terraform Systems', desc: 'Managing cloud infrastructure declaratively, state storage files, provider configuration parameters, and custom modules.', resources: ['Terraform CLI reference', 'HashiCorp learning portal'] },
-      { id: 'do-4', title: 'CI/CD Pipelines & GitHub Runners', desc: 'Configuring test runners, build pipelines, secrets storage rotations, environment variables mapping, and auto deployments.', resources: ['GitHub Actions guide', 'GitLab CI reference docs'] }
+      { id: 'do-2', title: 'Docker Orchestration & Container Caching', desc: 'Multi-stage docker caching, network configurations, volume mounts, and environment configuration mapping.', resources: ['Docker Multi-stage guide', 'Dockerfile Best Practices'] },
+      { id: 'do-3', title: 'Kubernetes Pods, Ingress, & Helm Charts', desc: 'Orchestrating container fleets, configuring services ingress routing rules, secrets encryption, and Helm package managers.', resources: ['Kubernetes official tutorials', 'Helm documentation'] },
+      { id: 'do-4', title: 'Infrastructure as Code: Terraform Systems', desc: 'Managing cloud infrastructure declaratively, state storage files, provider configuration parameters, and custom modules.', resources: ['Terraform CLI reference', 'HashiCorp learning portal'] },
+      { id: 'do-5', title: 'CI/CD Pipelines & GitHub Runners', desc: 'Configuring test runners, build pipelines, secrets storage rotations, environment variables mapping, and auto deployments.', resources: ['GitHub Actions guide', 'GitLab CI reference docs'] },
+      { id: 'do-6', title: 'Cloud Administration (AWS IAM, VPC, & security)', desc: 'Configuring secure VPC private subnets, configuring Route53 tables, and setting up IAM least privilege permission maps.', resources: ['AWS IAM Security', 'VPC Architecture Blueprint'] },
+      { id: 'do-7', title: 'APM Monitoring & Alert systems (Grafana)', desc: 'Prometheus metric scraping rules, configuring alerts pipelines with PagerDuty, and visual dashboard configuration.', resources: ['Grafana Alerting Guide', 'PagerDuty Integration'] },
+      { id: 'do-8', title: 'Secret Management Systems (HashiCorp Vault)', desc: 'Encrypting database passwords, dynamic secrets creation, keys rotation policies, and Vault access engines.', resources: ['HashiCorp Vault Reference', 'KMS encryption basics'] }
     ]
   },
   ml: {
     title: 'Machine Learning Engineer',
     description: 'Perform advanced mathematical regressions, design neural architectures, run structured pandas datasets, and scale model inference APIs.',
-    modulesCount: 95,
-    hours: 410,
+    modulesCount: 150,
+    hours: 550,
     enrolled: 'Trending • 280K enrolled',
     steps: [
       { id: 'ml-1', title: 'Mathematics: Calculus, Linear Algebra, & Stats', desc: 'Vector matrix operations, partial derivatives, loss functions theory, and statistical probability distributions.', resources: ['Khan Academy Advanced Stats', 'MIT Matrix Lectures'] },
       { id: 'ml-2', title: 'Structured Data Processing (Pandas & NumPy)', desc: 'Data cleaning, feature selections, vectorizations, missing value interpolations, and visualizations.', resources: ['Pandas Cookbooks', 'NumPy Reference manual'] },
-      { id: 'ml-3', title: 'Neural Architectures & Training (PyTorch)', desc: 'Backpropagations, layers configurations (CNN, RNN, Transformers), optimization cycles, and GPU tensor training.', resources: ['PyTorch official tutorials', 'Deep Learning Book'] }
+      { id: 'ml-3', title: 'Data Visualization & Feature Engineering', desc: 'Designing scatter plots, correlation matrices with Seaborn, out-of-distribution detection, and normalization.', resources: ['Seaborn Quickstart', 'Matplotlib tutorials'] },
+      { id: 'ml-4', title: 'Classical ML Models (Scikit-Learn)', desc: 'Training decision trees, linear regressions, Support Vector Machines (SVM), and hyperparameter grid searches.', resources: ['Scikit-Learn documentation', 'Intro to ML with Python'] },
+      { id: 'ml-5', title: 'Neural Architectures & Training (PyTorch)', desc: 'Backpropagations, layers configurations (CNN, RNN, Transformers), optimization cycles, and GPU tensor training.', resources: ['PyTorch official tutorials', 'Deep Learning Book'] },
+      { id: 'ml-6', title: 'Transformers & Large Language Models (LLMs)', desc: 'Fine-tuning attention maps, configuring multi-head attention weights, HuggingFace dataset pipelines, and tokenizers.', resources: ['HuggingFace Course', 'Attention Is All You Need Paper'] },
+      { id: 'ml-7', title: 'MLOps: Model Versioning & MLflow Pipelines', desc: 'Configuring model registers, metadata versioning with DVC, hyperparameter run tracking, and artifacts storage.', resources: ['MLflow quickstart guide', 'DVC reference guide'] },
+      { id: 'ml-8', title: 'Model Serving & Inference Orchestration', desc: 'Deploying inference wrappers with Triton inference server, ONNX export configurations, and FastAPI endpoint serving.', resources: ['FastAPI ML serving template', 'ONNX conversion tutorial'] }
     ]
   }
 };
