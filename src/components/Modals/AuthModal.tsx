@@ -153,7 +153,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn">
       {/* Container Card */}
-      <div className="relative w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl overflow-hidden text-slate-100 p-6 sm:p-8 space-y-6">
+      <div className="relative w-full max-w-md max-h-[95vh] overflow-y-auto bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl overflow-x-hidden text-slate-100 p-6 sm:p-8 space-y-6">
         
         {/* Social Auth Redirect Overlay */}
         {socialLoading && (

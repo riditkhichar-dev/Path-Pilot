@@ -62,6 +62,21 @@ export const authService = {
         if (user) {
           const mappedUser = this.mapSupabaseUser(user);
           localStorage.setItem(STORAGE_KEY, JSON.stringify(mappedUser));
+
+          // Ensure profile exists in database
+          try {
+            await supabase.from('profiles').upsert({
+              id: mappedUser.id,
+              name: mappedUser.name,
+              email: mappedUser.email,
+              role: mappedUser.role,
+              avatar: mappedUser.avatar,
+              auth_provider: mappedUser.authProvider
+            }, { onConflict: 'id' });
+          } catch (e) {
+            console.error('Failed to upsert profile:', e);
+          }
+
           return mappedUser;
         }
       } catch (err) {
@@ -265,6 +280,35 @@ export const authService = {
     localStorage.removeItem(STORAGE_KEY);
   },
 
+  // Delete Account
+  async deleteAccount(): Promise<void> {
+    if (isSupabaseConfigured()) {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          // Attempt to delete user via RPC (requires setting up 'delete_user' RPC in Supabase)
+          const { error: rpcError } = await supabase.rpc('delete_user');
+          if (rpcError) {
+             // Fallback: Delete from profiles table (assuming RLS allows users to delete their own profile)
+             await supabase.from('profiles').delete().eq('id', user.id);
+          }
+          await supabase.auth.signOut();
+        }
+      } catch (err) {
+        console.error('Error deleting user from supabase:', err);
+      }
+    } else {
+      // Demo / Fallback mode
+      const current = this.getCurrentUser();
+      if (current) {
+        const registeredUsers = this.getRegisteredUsers();
+        const updatedUsers = registeredUsers.filter(u => u.id !== current.id && u.email !== current.email);
+        localStorage.setItem(REGISTERED_USERS_KEY, JSON.stringify(updatedUsers));
+      }
+    }
+    localStorage.removeItem(STORAGE_KEY);
+  },
+
   // Step 10: Listen for Auth Changes with Supabase
   onAuthStateChange(
     callback: (user: User | null, session?: Session | null, event?: AuthChangeEvent) => void
@@ -279,6 +323,23 @@ export const authService = {
         if (session?.user) {
           const user = this.mapSupabaseUser(session.user);
           localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+
+          // Ensure profile exists in database on sign in
+          if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
+            try {
+              await supabase.from('profiles').upsert({
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                avatar: user.avatar,
+                auth_provider: user.authProvider
+              }, { onConflict: 'id' });
+            } catch (e) {
+              console.error('Failed to upsert profile on auth change:', e);
+            }
+          }
+
           callback(user, session, event);
         } else {
           localStorage.removeItem(STORAGE_KEY);

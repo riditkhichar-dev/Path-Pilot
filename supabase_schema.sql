@@ -37,6 +37,12 @@ CREATE POLICY "Users can update their own profile."
   FOR UPDATE
   USING (auth.uid() = id);
 
+-- Policy: Allow users to delete their own profile
+CREATE POLICY "Users can delete their own profile."
+  ON public.profiles
+  FOR DELETE
+  USING (auth.uid() = id);
+
 -- 4. Trigger Function: Automatically create profile on new user signup
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
@@ -75,3 +81,15 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER on_profiles_updated
   BEFORE UPDATE ON public.profiles
   FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
+
+-- 7. RPC to delete user account completely (from auth.users)
+-- This function allows a user to delete their own account from the client-side
+CREATE OR REPLACE FUNCTION public.delete_user()
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  DELETE FROM auth.users WHERE id = auth.uid();
+END;
+$$;

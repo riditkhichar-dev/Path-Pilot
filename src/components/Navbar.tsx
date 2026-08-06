@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Sparkles, Menu, X, ArrowRight, Sun, Moon, User as UserIcon, LogOut, ShieldCheck, Compass, Settings, ChevronDown } from 'lucide-react';
+import { Sparkles, Menu, X, ArrowRight, Sun, Moon, User as UserIcon, LogOut, ShieldCheck, Compass, Settings, ChevronDown, Trash2, LayoutDashboard } from 'lucide-react';
 import { PathPilotLogo } from './PathPilotLogo';
 import { User, AuthMode } from '../types';
 
@@ -11,6 +11,7 @@ interface NavbarProps {
   user: User | null;
   onOpenAuth: (mode: AuthMode) => void;
   onLogout: () => void;
+  onDeleteAccount: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -20,7 +21,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   onToggleDarkMode,
   user,
   onOpenAuth,
-  onLogout
+  onLogout,
+  onDeleteAccount
 }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -52,16 +54,17 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   const navLinks = [
     { name: 'Home', href: '#hero' },
+    ...(user ? [{ name: 'Dashboard', href: '#dashboard' }] : []),
     { name: 'Features', href: '#features' },
     { name: 'Interactive Demo', href: '#demo' },
-    { name: 'How It Works', href: '#how-it-works' },
+    { name: 'Explore Careers', href: '#explore' },
     { name: 'Why Us', href: '#why-us' },
     { name: 'FAQ', href: '#faq' },
   ];
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-305 ${
         isScrolled
           ? 'glass-nav py-3 shadow-xl shadow-slate-950/30'
           : 'bg-transparent py-5'
@@ -136,6 +139,15 @@ export const Navbar: React.FC<NavbarProps> = ({
                       <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">{user.email}</p>
                     </div>
 
+                    <a
+                      href="#dashboard"
+                      onClick={() => setUserDropdownOpen(false)}
+                      className="w-full px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/80 rounded-xl flex items-center gap-2.5 transition-colors text-left"
+                    >
+                      <LayoutDashboard className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
+                      <span>My Dashboard</span>
+                    </a>
+
                     <button
                       onClick={() => {
                         setUserDropdownOpen(false);
@@ -159,6 +171,16 @@ export const Navbar: React.FC<NavbarProps> = ({
                     </button>
 
                     <div className="border-t border-slate-100 dark:border-slate-800/80 pt-1">
+                      <button
+                        onClick={() => {
+                          setUserDropdownOpen(false);
+                          onDeleteAccount();
+                        }}
+                        className="w-full px-3 py-2 text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-500/10 rounded-xl flex items-center gap-2.5 transition-colors text-left"
+                      >
+                        <Trash2 className="w-4 h-4 text-rose-500 shrink-0" />
+                        <span>Delete Account</span>
+                      </button>
                       <button
                         onClick={() => {
                           setUserDropdownOpen(false);
@@ -255,6 +277,16 @@ export const Navbar: React.FC<NavbarProps> = ({
                     <span className="text-[10px] text-blue-400">{user.email}</span>
                   </div>
                 </div>
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    onDeleteAccount();
+                  }}
+                  className="w-full py-2.5 text-xs font-bold text-rose-400 bg-rose-500/10 border border-rose-500/30 rounded-xl flex items-center justify-center gap-2 mb-2"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span>Delete Account</span>
+                </button>
                 <button
                   onClick={() => {
                     setMobileMenuOpen(false);

@@ -7,28 +7,28 @@ export const TrustedBy: React.FC = () => {
       title: 'Groq AI Speed',
       detail: 'Ultra-fast Llama-3 70B inference for instant career Q&A',
       icon: Zap,
-      color: 'text-orange-400',
+      color: 'text-orange-500 dark:text-orange-400',
       border: 'border-orange-500/30'
     },
     {
       title: 'Class 9th to University',
       detail: 'Personalized stream choices, high school guidance & roadmaps',
       icon: GraduationCap,
-      color: 'text-blue-400',
+      color: 'text-blue-600 dark:text-blue-400',
       border: 'border-blue-500/30'
     },
     {
       title: 'Early Access Cohort',
       detail: 'Free tier unlocked for founding student members',
       icon: Sparkles,
-      color: 'text-emerald-400',
+      color: 'text-emerald-600 dark:text-emerald-400',
       border: 'border-emerald-500/30'
     },
     {
       title: 'Privacy-First & Secure',
       detail: 'Zero data tracking, zero ads, built safely for learners',
       icon: ShieldCheck,
-      color: 'text-amber-400',
+      color: 'text-amber-500 dark:text-amber-400',
       border: 'border-amber-500/30'
     },
   ];
