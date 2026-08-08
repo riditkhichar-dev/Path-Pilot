@@ -34,9 +34,11 @@ import {
   Flame,
   Layers,
   Code2,
-  Settings
+  Settings,
+  Bot
 } from 'lucide-react';
 import { User } from '../../types';
+import { fetchGroqChatResponse, ChatMessage } from '../../services/groqApi';
 
 interface DashboardProps {
   user: User | null;
@@ -123,6 +125,150 @@ const MOCK_CAREERS: Career[] = [
     description: 'Use computational software tools to analyze biological data, model structures, and unlock genetics.'
   }
 ];
+
+interface QuizQuestion {
+  id: string;
+  text: string;
+  options: string[];
+  scores: { [careerTitle: string]: number };
+}
+
+interface Quiz {
+  id: string;
+  title: string;
+  desc: string;
+  category: string;
+  duration: string;
+  difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
+  questions: QuizQuestion[];
+}
+
+interface QuizAttempt {
+  quizId: string;
+  quizTitle: string;
+  score: number;
+  matchProfile: string;
+  date: string;
+}
+
+const QUIZZES_DATA: Quiz[] = [
+  {
+    id: 'quiz-1',
+    title: '💻 Tech Career Aptitude Test',
+    desc: 'Evaluate your strengths in logic, algorithm design, system scaling, and client-side interfaces to find your perfect software engineering path.',
+    category: 'Software & Technology',
+    duration: '5 Questions • 4 mins',
+    difficulty: 'Beginner',
+    questions: [
+      {
+        id: 'q1-1',
+        text: 'When working on a project, which layer of the application stack excites you the most?',
+        options: [
+          'Building fluid responsive interfaces, micro-animations, and handling state values.',
+          'Designing API routers, database indexing structures, and server middlewares.',
+          'Configuring build runners, multi-stage docker caching, and cloud deployments.',
+          'Training mathematical prediction algorithms and processing datasets.'
+        ],
+        scores: { 'Frontend Developer': 5, 'Backend Developer': 1, 'DevOps & Cloud Engineer': 0, 'Machine Learning Engineer': 0 }
+      },
+      {
+        id: 'q1-2',
+        text: 'How do you prefer to store and retrieve application data?',
+        options: [
+          'In local storage sessions or localized React Context state buffers.',
+          'Structured SQL relational database transactions with indexing optimizations.',
+          'Docker container volumes and declarative cloud configuration states.',
+          'Heavy numpy arrays and pandas DataFrame spreadsheets.'
+        ],
+        scores: { 'Frontend Developer': 1, 'Backend Developer': 5, 'DevOps & Cloud Engineer': 2, 'Machine Learning Engineer': 3 }
+      },
+      {
+        id: 'q1-3',
+        text: 'Which scripting/programming tool do you feel most comfortable working with?',
+        options: [
+          'TypeScript / JavaScript / HTML5',
+          'Go / Python / Node.js / Java',
+          'Bash / Shell scripts / YAML configurations',
+          'Python (Pandas, PyTorch) / R / C++'
+        ],
+        scores: { 'Frontend Developer': 5, 'Backend Developer': 3, 'DevOps & Cloud Engineer': 4, 'Machine Learning Engineer': 4 }
+      },
+      {
+        id: 'q1-4',
+        text: 'What do you consider to be the most satisfying part of debugging?',
+        options: [
+          'Fixing CSS reflow issues and layout shifts for a pixel-perfect design.',
+          'Optimizing deep nested SQL queries and fixing race conditions in concurrent APIs.',
+          'Fixing a broken CI/CD pipeline deploy script to automate release builds.',
+          'Tuning model hyperparameters to reduce training loss percentage.'
+        ],
+        scores: { 'Frontend Developer': 5, 'Backend Developer': 2, 'DevOps & Cloud Engineer': 4, 'Machine Learning Engineer': 3 }
+      },
+      {
+        id: 'q1-5',
+        text: 'How do you view system scalability?',
+        options: [
+          'Reducing browser bundle size, dynamic imports, and asset optimization.',
+          'API gatekeepers, caching endpoints via Redis, and connection pooling.',
+          'Auto-scaling server instances, orchestrating fleets via Kubernetes clusters.',
+          'Optimizing batch inferences and using GPU thread blocks efficiently.'
+        ],
+        scores: { 'Frontend Developer': 3, 'Backend Developer': 4, 'DevOps & Cloud Engineer': 5, 'Machine Learning Engineer': 2 }
+      }
+    ]
+  },
+  {
+    id: 'quiz-2',
+    title: '🎨 Creative Design & UI/UX Fit',
+    desc: 'Analyze your user empathy, graphic layouts, wireframe design, and visual styling to evaluate your design career alignment.',
+    category: 'Design & Creative',
+    duration: '3 Questions • 3 mins',
+    difficulty: 'Beginner',
+    questions: [
+      {
+        id: 'q2-1',
+        text: 'What is the most critical element of a web interface?',
+        options: [
+          'Clean, user-centric wireframes that require zero instructions to navigate.',
+          'Stunning color harmony, fonts, and dark space aesthetics.',
+          'Passing Lighthouse WCAG accessibility compliance standards.',
+          'Fast page load times and network throughput speed.'
+        ],
+        scores: { 'UI/UX Product Designer': 5, 'Creative Content Director': 3, 'Frontend Developer': 2 }
+      },
+      {
+        id: 'q2-2',
+        text: 'Choose a tool that you would use daily:',
+        options: [
+          'Figma / Adobe XD prototyping systems',
+          'Illustrator / Photoshop / Creative Suite asset creation',
+          'HTML5 / CSS3 / Tailwind layout templates',
+          'Python scripts for batch processing datasets'
+        ],
+        scores: { 'UI/UX Product Designer': 5, 'Creative Content Director': 4, 'Frontend Developer': 1 }
+      },
+      {
+        id: 'q2-3',
+        text: 'How do you make design decisions?',
+        options: [
+          'By conducting structured user testing interviews and reviewing heatmaps.',
+          'By analyzing brand identity layouts and emotional brand stories.',
+          'By matching client-side responsiveness grid components.',
+          'By running A/B testing statistical regression math.'
+        ],
+        scores: { 'UI/UX Product Designer': 5, 'Creative Content Director': 4, 'Frontend Developer': 1 }
+      }
+    ]
+  }
+];
+
+interface ChatSession {
+  id: string;
+  title: string;
+  messages: ChatMessage[];
+  timestamp: string;
+  isSaved?: boolean;
+}
 
 // Dynamic structured roadmaps definition
 interface RoadmapStep {
@@ -627,11 +773,34 @@ export const Dashboard: React.FC<DashboardProps> = ({
   isDarkMode,
   onToggleTheme,
 }) => {
-  const [activeTab, setActiveTab] = useState<'home' | 'roadmaps' | 'interview' | 'forum' | 'settings'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'roadmaps' | 'interview' | 'forum' | 'settings' | 'chat' | 'quiz'>('home');
   const [searchQuery, setSearchQuery] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedCareer, setSelectedCareer] = useState<Career | null>(null);
   const [bookmarkedCareers, setBookmarkedCareers] = useState<string[]>([]);
+
+  // Quiz page states
+  const [activeQuizId, setActiveQuizId] = useState<string | null>(null);
+  const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
+  const [selectedAnswers, setSelectedAnswers] = useState<{ [qIdx: number]: number }>({});
+  const [quizResult, setQuizResult] = useState<{ matchScore: number; matchProfile: string; strengths: string[]; improvements: string[] } | null>(null);
+  const [quizAttempts, setQuizAttempts] = useState<QuizAttempt[]>(() => {
+    const saved = localStorage.getItem('pathpilot_quiz_attempts');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {}
+    }
+    return [
+      {
+        quizId: 'quiz-1',
+        quizTitle: '💻 Tech Career Aptitude Test',
+        score: 92,
+        matchProfile: 'Machine Learning Engineer',
+        date: 'August 6, 2026'
+      }
+    ];
+  });
 
   // Settings page states
   const [profileName, setProfileName] = useState(user?.name || '');
@@ -651,6 +820,75 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const [linkedinConnected, setLinkedinConnected] = useState(false);
   const [activeSettingsSection, setActiveSettingsSection] = useState<'profile' | 'account' | 'security' | 'preferences' | 'connected'>('profile');
   const [settingsSuccessMessage, setSettingsSuccessMessage] = useState<string | null>(null);
+
+  // Chat page states
+  const [chatSessions, setChatSessions] = useState<ChatSession[]>(() => {
+    const saved = localStorage.getItem('pathpilot_chat_sessions');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    return [
+      {
+        id: 'session-1',
+        title: '🤖 AI Engineering Career Path',
+        timestamp: '10:30 AM',
+        isSaved: true,
+        messages: [
+          {
+            id: 'msg-1',
+            sender: 'ai',
+            text: 'Hello! I see you are interested in becoming a **Machine Learning Engineer**. How can I help you map out your stream choice or course curricula today?',
+            timestamp: '10:28 AM'
+          },
+          {
+            id: 'msg-2',
+            sender: 'user',
+            text: 'I am in class 11. What computer science concepts should I study first?',
+            timestamp: '10:29 AM'
+          },
+          {
+            id: 'msg-3',
+            sender: 'ai',
+            text: 'Excellent start! At your stage, prioritize learning **Python** basics (control flows, functions, lists) and **fundamental mathematics** (basic linear algebra and statistics). Would you like a weekly curriculum list for Python?',
+            timestamp: '10:30 AM'
+          }
+        ]
+      },
+      {
+        id: 'session-2',
+        title: '📄 Resume Formatting Advice',
+        timestamp: 'Yesterday',
+        messages: [
+          {
+            id: 'msg-4',
+            sender: 'ai',
+            text: 'Welcome! Share your draft resume outline or bullet points, and I will show you how to optimize them for **Applicant Tracking Systems (ATS)**.',
+            timestamp: 'Yesterday'
+          }
+        ]
+      }
+    ];
+  });
+  
+  const [activeSessionId, setActiveSessionId] = useState<string>(() => {
+    const saved = localStorage.getItem('pathpilot_chat_sessions');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.length > 0) return parsed[0].id;
+      } catch (e) {}
+    }
+    return 'session-1';
+  });
+
+  const [chatInput, setChatInput] = useState('');
+  const [isChatLoading, setIsChatLoading] = useState(false);
+  const [chatSearchQuery, setChatSearchQuery] = useState('');
+  const [showSavedOnly, setShowSavedOnly] = useState(false);
 
   // Roadmaps State
   const [activeRoadmap, setActiveRoadmap] = useState<'frontend' | 'backend' | 'fullstack' | 'devops' | 'ml'>('frontend');
@@ -918,6 +1156,233 @@ export const Dashboard: React.FC<DashboardProps> = ({
     }, 3500);
   };
 
+  // Save chat session list to local storage
+  const saveChatSessionsToStorage = (updatedSessions: ChatSession[]) => {
+    localStorage.setItem('pathpilot_chat_sessions', JSON.stringify(updatedSessions));
+  };
+
+  // Toggle Save Session (star/bookmark)
+  const handleToggleSaveSession = (sessionId: string, e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+    }
+    setChatSessions(prev => {
+      const updated = prev.map(s => s.id === sessionId ? { ...s, isSaved: !s.isSaved } : s);
+      saveChatSessionsToStorage(updated);
+      return updated;
+    });
+  };
+
+  // Delete Chat Session
+  const handleDeleteChatSession = (sessionId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setChatSessions(prev => {
+      const updated = prev.filter(s => s.id !== sessionId);
+      saveChatSessionsToStorage(updated);
+      
+      // If we deleted the active session, switch activeSessionId
+      if (activeSessionId === sessionId && updated.length > 0) {
+        setActiveSessionId(updated[0].id);
+      }
+      return updated;
+    });
+  };
+
+  // Start New Chat session
+  const handleStartNewChat = () => {
+    const newSessionId = `session-${Date.now()}`;
+    const newSession: ChatSession = {
+      id: newSessionId,
+      title: `💬 Career Discussion #${chatSessions.length + 1}`,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      messages: [
+        {
+          id: `msg-${Date.now()}`,
+          sender: 'ai',
+          text: `Welcome! I'm **PATHPILOT AI**, your career counselor. How can I help you explore your interests or build a learning path today?`,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        }
+      ]
+    };
+
+    setChatSessions(prev => {
+      const updated = [newSession, ...prev];
+      saveChatSessionsToStorage(updated);
+      return updated;
+    });
+    setActiveSessionId(newSessionId);
+  };
+
+  // Send Message inside Chat
+  const handleSendChatMessage = async (presetText?: string) => {
+    const queryText = presetText || chatInput.trim();
+    if (!queryText || isChatLoading) return;
+
+    if (!presetText) setChatInput('');
+    setIsChatLoading(true);
+
+    const userMsg: ChatMessage = {
+      id: `msg-user-${Date.now()}`,
+      sender: 'user',
+      text: queryText,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+
+    let currentSession = chatSessions.find(s => s.id === activeSessionId);
+    let sessionList = [...chatSessions];
+
+    // If there is no active session, create one
+    if (!currentSession) {
+      const newSessionId = `session-${Date.now()}`;
+      currentSession = {
+        id: newSessionId,
+        title: queryText.length > 30 ? queryText.slice(0, 30) + '...' : queryText,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        messages: [userMsg]
+      };
+      sessionList = [currentSession, ...sessionList];
+      setActiveSessionId(newSessionId);
+    } else {
+      // Append user message to active session
+      sessionList = sessionList.map(s => {
+        if (s.id === activeSessionId) {
+          const updatedMsgs = [...s.messages, userMsg];
+          // Update title if it was default name
+          const title = s.title.startsWith('💬 Career Discussion') && s.messages.length <= 1 
+            ? (queryText.length > 30 ? queryText.slice(0, 30) + '...' : queryText)
+            : s.title;
+
+          return {
+            ...s,
+            title,
+            messages: updatedMsgs,
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          };
+        }
+        return s;
+      });
+    }
+
+    setChatSessions(sessionList);
+    saveChatSessionsToStorage(sessionList);
+
+    // Call Groq API
+    try {
+      const activeMsgs = sessionList.find(s => s.id === currentSession.id)?.messages || [];
+      const history = activeMsgs.map(msg => ({
+        role: msg.sender === 'user' ? ('user' as const) : ('assistant' as const),
+        content: msg.text
+      }));
+
+      const reply = await fetchGroqChatResponse(history);
+
+      const aiMsg: ChatMessage = {
+        id: `msg-ai-${Date.now()}`,
+        sender: 'ai',
+        text: reply,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+
+      setChatSessions(prev => {
+        const updated = prev.map(s => {
+          if (s.id === currentSession.id) {
+            return { ...s, messages: [...s.messages, aiMsg] };
+          }
+          return s;
+        });
+        saveChatSessionsToStorage(updated);
+        return updated;
+      });
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsChatLoading(false);
+    }
+  };
+
+  // Start Quiz
+  const handleStartQuiz = (quizId: string) => {
+    setActiveQuizId(quizId);
+    setCurrentQuestionIdx(0);
+    setSelectedAnswers({});
+    setQuizResult(null);
+  };
+
+  // Select Quiz Option
+  const handleSelectQuizOption = (qIdx: number, oIdx: number) => {
+    setSelectedAnswers(prev => ({
+      ...prev,
+      [qIdx]: oIdx
+    }));
+  };
+
+  // Submit Quiz & Tally Scores
+  const handleSubmitQuiz = () => {
+    const quiz = QUIZZES_DATA.find(q => q.id === activeQuizId);
+    if (!quiz) return;
+
+    const tally: { [career: string]: number } = {};
+    quiz.questions.forEach((q, qIdx) => {
+      const selectedOptionIdx = selectedAnswers[qIdx];
+      if (selectedOptionIdx !== undefined) {
+        const optionScores = q.scores;
+        Object.entries(optionScores).forEach(([career, pts]) => {
+          tally[career] = (tally[career] || 0) + pts;
+        });
+      }
+    });
+
+    let bestCareer = 'Machine Learning Engineer';
+    let maxPts = -1;
+    Object.entries(tally).forEach(([career, pts]) => {
+      if (pts > maxPts) {
+        maxPts = pts;
+        bestCareer = career;
+      }
+    });
+
+    const score = Math.min(100, Math.round((maxPts / (quiz.questions.length * 5)) * 40) + 60);
+
+    const strengths = [
+      'Strong logical execution and structured thinking patterns.',
+      'Outstanding aptitude for identifying code architecture blocks.',
+      'High user empathy for design patterns and layout structure.'
+    ];
+    const improvements = [
+      'Deepen knowledge in docker environments and serverless edge functions.',
+      'Practice writing unit tests and E2E simulation flows.'
+    ];
+
+    const result = {
+      matchScore: score,
+      matchProfile: bestCareer,
+      strengths,
+      improvements
+    };
+
+    setQuizResult(result);
+
+    const newAttempt: QuizAttempt = {
+      quizId: quiz.id,
+      quizTitle: quiz.title,
+      score: score,
+      matchProfile: bestCareer,
+      date: new Date().toLocaleDateString([], { year: 'numeric', month: 'long', day: 'numeric' })
+    };
+
+    const updatedAttempts = [newAttempt, ...quizAttempts];
+    setQuizAttempts(updatedAttempts);
+    localStorage.setItem('pathpilot_quiz_attempts', JSON.stringify(updatedAttempts));
+  };
+
+  // Reset Quiz
+  const handleResetQuiz = () => {
+    setActiveQuizId(null);
+    setCurrentQuestionIdx(0);
+    setSelectedAnswers({});
+    setQuizResult(null);
+  };
+
   // Roadmaps checklists
   const toggleRoadmapNode = (nodeId: string) => {
     setRoadmapProgress(prev => ({
@@ -1039,6 +1504,18 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 <Settings className="w-4 h-4 shrink-0" />
                 <span>Settings & Profile</span>
               </button>
+
+              <button
+                onClick={() => setActiveTab('quiz')}
+                className={`w-full px-3 py-2.5 rounded-xl text-[12px] font-bold flex items-center gap-3 transition-all ${
+                  activeTab === 'quiz' 
+                    ? 'bg-blue-600/10 text-blue-450 border border-blue-500/20' 
+                    : 'text-slate-400 hover:bg-slate-900/60 hover:text-white'
+                }`}
+              >
+                <BookOpen className="w-4 h-4 shrink-0" />
+                <span>Career Quiz</span>
+              </button>
             </div>
 
             {/* ADDITIONAL WORK LABELS (From Codexflow reference) */}
@@ -1046,11 +1523,15 @@ export const Dashboard: React.FC<DashboardProps> = ({
               <span className="px-3 block text-[9px] uppercase font-bold text-slate-500 tracking-wider mb-2">For Work</span>
               
               <button
-                onClick={onOpenChat}
-                className="w-full px-3 py-2.5 rounded-xl text-[12px] font-bold flex items-center gap-3 text-slate-400 hover:bg-slate-900/60 hover:text-white transition-all"
+                onClick={() => setActiveTab('chat')}
+                className={`w-full px-3 py-2.5 rounded-xl text-[12px] font-bold flex items-center gap-3 transition-all ${
+                  activeTab === 'chat' 
+                    ? 'bg-blue-600/10 text-blue-450 border border-blue-500/20' 
+                    : 'text-slate-400 hover:bg-slate-900/60 hover:text-white'
+                }`}
               >
                 <Sparkles className="w-4 h-4 text-orange-400" />
-                <span>AI-Powered Tools</span>
+                <span>AI Career Chat</span>
               </button>
 
               <button
@@ -1120,6 +1601,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
               className={`flex-1 min-w-[65px] py-2 text-center text-[10px] font-bold rounded-lg ${activeTab === 'settings' ? 'bg-blue-600 text-white' : 'text-slate-400'}`}
             >
               Settings
+            </button>
+            <button 
+              onClick={() => setActiveTab('quiz')} 
+              className={`flex-1 min-w-[65px] py-2 text-center text-[10px] font-bold rounded-lg ${activeTab === 'quiz' ? 'bg-blue-600 text-white' : 'text-slate-400'}`}
+            >
+              Quiz
             </button>
           </div>
 
@@ -1273,7 +1760,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                         </p>
 
                         <button 
-                          onClick={onOpenChat}
+                          onClick={() => setActiveTab('chat')}
                           className="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-colors"
                         >
                           <span>Ask AI Counselor</span>
@@ -2403,6 +2890,506 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </div>
           )}
 
+          {/* ---------------------------------------------------- */}
+          {/* TAB 6: AI CAREER CHAT */}
+          {/* ---------------------------------------------------- */}
+          {activeTab === 'chat' && (() => {
+            const currentSession = chatSessions.find(s => s.id === activeSessionId) || chatSessions[0];
+            const filteredSessions = chatSessions.filter(s => {
+              const matchesSearch = s.title.toLowerCase().includes(chatSearchQuery.toLowerCase());
+              const matchesSaved = showSavedOnly ? s.isSaved : true;
+              return matchesSearch && matchesSaved;
+            });
+
+            return (
+              <div className="h-[calc(100vh-180px)] lg:h-[calc(100vh-140px)] flex flex-col lg:flex-row gap-6 animate-fadeIn">
+                
+                {/* Left Panel: Chat History & Saved Chats */}
+                <div className="w-full lg:w-80 shrink-0 flex flex-col bg-[#090A12] border border-[#13172E] rounded-3xl overflow-hidden h-72 lg:h-full">
+                  {/* Panel Header */}
+                  <div className="p-4 border-b border-[#13172E] space-y-3 shrink-0">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs uppercase font-bold text-slate-400 tracking-wider">AI Counselor History</span>
+                      <button 
+                        onClick={handleStartNewChat}
+                        className="px-2.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-bold rounded-lg flex items-center gap-1 transition-all"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>New Chat</span>
+                      </button>
+                    </div>
+                    {/* Search bar */}
+                    <div className="relative">
+                      <input 
+                        type="text"
+                        placeholder="Search conversations..."
+                        value={chatSearchQuery}
+                        onChange={(e) => setChatSearchQuery(e.target.value)}
+                        className="w-full pl-8 pr-3 py-1.5 text-xs bg-[#07080F] border border-[#13172E] rounded-xl outline-none focus:border-blue-500 text-white"
+                      />
+                      <Search className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-2.5" />
+                    </div>
+                    {/* History vs Starred toggle pills */}
+                    <div className="flex bg-[#07080F] p-0.5 rounded-lg border border-[#13172E]/50 text-[10px] font-bold">
+                      <button
+                        onClick={() => setShowSavedOnly(false)}
+                        className={`flex-1 py-1 rounded transition-all ${!showSavedOnly ? 'bg-blue-600/10 text-blue-400' : 'text-slate-400'}`}
+                      >
+                        All Chats
+                      </button>
+                      <button
+                        onClick={() => setShowSavedOnly(true)}
+                        className={`flex-1 py-1 rounded transition-all ${showSavedOnly ? 'bg-blue-600/10 text-blue-400' : 'text-slate-400'}`}
+                      >
+                        ⭐ Saved Chats
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Sessions List */}
+                  <div className="flex-1 overflow-y-auto p-2 custom-scrollbar space-y-1">
+                    {filteredSessions.length > 0 ? (
+                      filteredSessions.map(session => (
+                        <div
+                          key={session.id}
+                          onClick={() => setActiveSessionId(session.id)}
+                          className={`w-full p-3 rounded-xl cursor-pointer text-left transition-all flex items-center justify-between gap-3 border ${
+                            activeSessionId === session.id
+                              ? 'bg-blue-600/10 border-blue-500/25 text-blue-400'
+                              : 'bg-transparent border-transparent hover:bg-slate-900/50 text-slate-400 hover:text-slate-200'
+                          }`}
+                        >
+                          <div className="min-w-0 flex-1 space-y-0.5">
+                            <span className="block text-xs font-bold truncate leading-tight">{session.title}</span>
+                            <span className="block text-[9px] text-slate-500">{session.timestamp}</span>
+                          </div>
+                          
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <button
+                              onClick={(e) => handleToggleSaveSession(session.id, e)}
+                              className={`p-1 rounded hover:bg-slate-900 text-slate-500 hover:text-amber-450 transition-colors ${
+                                session.isSaved ? 'text-amber-400' : ''
+                              }`}
+                            >
+                              ★
+                            </button>
+                            <button
+                              onClick={(e) => handleDeleteChatSession(session.id, e)}
+                              className="p-1 rounded hover:bg-rose-500/10 text-slate-500 hover:text-rose-500 transition-colors text-[10px]"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="py-8 text-center text-[10px] text-slate-500">
+                        {showSavedOnly ? 'No saved chats found.' : 'No chat history found.'}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Right Panel: Chat viewport */}
+                <div className="flex-1 flex flex-col bg-[#090A12] border border-[#13172E] rounded-3xl overflow-hidden h-96 lg:h-full">
+                  {/* Viewport Header */}
+                  <div className="px-5 py-4 border-b border-[#13172E] flex justify-between items-center shrink-0">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-blue-600/10 border border-blue-500/25 flex items-center justify-center text-blue-400">
+                        <Bot className="w-4 h-4" />
+                      </div>
+                      <div className="text-left">
+                        <h4 className="text-xs font-bold text-white leading-tight">
+                          {currentSession ? currentSession.title : 'AI Career Advisor'}
+                        </h4>
+                        <span className="text-[9px] text-emerald-450 flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
+                          Online • Groq Llama 3.3 Active
+                        </span>
+                      </div>
+                    </div>
+                    {currentSession && (
+                      <button
+                        onClick={() => handleToggleSaveSession(currentSession.id)}
+                        className={`px-3 py-1.5 border rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                          currentSession.isSaved
+                            ? 'bg-amber-500/10 border-amber-500/20 text-amber-400'
+                            : 'border-[#13172E] text-slate-400 hover:text-white'
+                        }`}
+                      >
+                        <span>★</span>
+                        <span>{currentSession.isSaved ? 'Saved' : 'Save Chat'}</span>
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Messages log */}
+                  <div className="flex-1 overflow-y-auto p-5 space-y-4 custom-scrollbar bg-[#07080F]/30">
+                    {currentSession && currentSession.messages.map(msg => (
+                      <div
+                        key={msg.id}
+                        className={`flex gap-3 max-w-[85%] ${msg.sender === 'user' ? 'ml-auto flex-row-reverse text-right' : 'text-left'}`}
+                      >
+                        {msg.sender === 'ai' && (
+                          <div className="w-7 h-7 rounded-full bg-blue-600/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shrink-0 mt-0.5">
+                            <Bot className="w-3.5 h-3.5" />
+                          </div>
+                        )}
+                        <div className="space-y-1">
+                          <div className={`p-3 rounded-2xl text-xs leading-relaxed ${
+                            msg.sender === 'user'
+                              ? 'bg-blue-600 text-white rounded-tr-none'
+                              : 'bg-[#090A12] border border-[#13172E] text-slate-200 rounded-tl-none'
+                          }`}>
+                            {/* Simple Markdown Bold/Bullet Parser */}
+                            {msg.text.split('\n').map((line, lIdx) => {
+                              let content: React.ReactNode = line;
+                              
+                              // Check if bullet point
+                              const isBullet = line.trim().startsWith('- ') || line.trim().startsWith('* ');
+                              if (isBullet) {
+                                line = line.trim().substring(2);
+                              }
+                              
+                              // Parse bold text **word**
+                              const parts = line.split('**');
+                              if (parts.length > 1) {
+                                content = parts.map((part, pIdx) => pIdx % 2 === 1 ? <strong key={pIdx} className="text-white font-extrabold">{part}</strong> : part);
+                              }
+
+                              if (isBullet) {
+                                return (
+                                  <div key={lIdx} className="flex gap-2 pl-2 py-0.5">
+                                    <span className="text-blue-450">•</span>
+                                    <span>{content}</span>
+                                  </div>
+                                );
+                              }
+                              return <p key={lIdx} className="min-h-[1em]">{content}</p>;
+                            })}
+                          </div>
+                          <span className="block text-[8px] text-slate-500 px-1">{msg.timestamp}</span>
+                        </div>
+                      </div>
+                    ))}
+                    {isChatLoading && (
+                      <div className="flex gap-3 max-w-[85%] text-left">
+                        <div className="w-7 h-7 rounded-full bg-blue-600/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shrink-0 mt-0.5 animate-pulse">
+                          <Bot className="w-3.5 h-3.5" />
+                        </div>
+                        <div className="p-3 bg-[#090A12] border border-[#13172E] text-slate-400 rounded-2xl rounded-tl-none text-xs flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-slate-500 animate-bounce" style={{ animationDelay: '0ms' }} />
+                          <span className="w-1.5 h-1.5 rounded-full bg-slate-500 animate-bounce" style={{ animationDelay: '150ms' }} />
+                          <span className="w-1.5 h-1.5 rounded-full bg-slate-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Preset prompt chips */}
+                  {currentSession && currentSession.messages.length <= 1 && (
+                    <div className="p-3 border-t border-[#13172E]/40 bg-[#07080F]/20 shrink-0 flex flex-wrap gap-2 justify-center">
+                      {[
+                        "🎓 Class 11 stream choice for Machine Learning Engineering",
+                        "🚀 9-Month learning roadmap for Full-Stack Developer",
+                        "📄 How to format a student resume for ATS checkers",
+                        "💡 High-paying tech careers for the next 5 years"
+                      ].map(prompt => (
+                        <button
+                          key={prompt}
+                          type="button"
+                          onClick={() => handleSendChatMessage(prompt)}
+                          className="px-2.5 py-1.5 bg-[#090A12] border border-[#13172E] hover:border-blue-500/40 text-slate-400 hover:text-slate-200 rounded-lg text-[10px] text-left transition-all leading-snug max-w-xs"
+                        >
+                          {prompt}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Input form */}
+                  <div className="p-4 border-t border-[#13172E] shrink-0 bg-[#090A12]">
+                    <div className="relative flex items-center bg-[#07080F] border border-[#13172E] rounded-2xl p-1.5">
+                      <textarea
+                        rows={1}
+                        placeholder="Ask PATHPILOT AI a career question..."
+                        value={chatInput}
+                        onChange={(e) => setChatInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            handleSendChatMessage();
+                          }
+                        }}
+                        className="flex-1 max-h-24 min-h-[36px] bg-transparent outline-none border-none text-xs text-white px-3 py-2 resize-none custom-scrollbar"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleSendChatMessage()}
+                        disabled={isChatLoading || !chatInput.trim()}
+                        className="p-2.5 bg-blue-600 hover:bg-blue-500 disabled:bg-slate-800 disabled:text-slate-500 text-white rounded-xl transition-all shrink-0"
+                      >
+                        <Send className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            );
+          })()}
+          {/* ---------------------------------------------------- */}
+          {/* TAB 7: CAREER QUIZ Assessment Workspace */}
+          {/* ---------------------------------------------------- */}
+          {activeTab === 'quiz' && (() => {
+            const activeQuiz = QUIZZES_DATA.find(q => q.id === activeQuizId);
+            
+            // View 1: Quiz Results Screen
+            if (quizResult && activeQuiz) {
+              return (
+                <div className="max-w-3xl mx-auto bg-[#090A12] border border-[#13172E] rounded-3xl p-6 md:p-8 space-y-8 animate-scaleUp text-left">
+                  <div className="text-center space-y-2">
+                    <div className="w-16 h-16 rounded-full bg-blue-600/10 border border-blue-500/25 flex items-center justify-center text-blue-400 mx-auto text-2xl">
+                      🏆
+                    </div>
+                    <h3 className="text-lg font-bold text-white">Assessment Complete!</h3>
+                    <p className="text-xs text-slate-500">We mapped your answers against core tech role parameters.</p>
+                  </div>
+
+                  {/* Score Indicator Gauge */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center bg-[#07080F] p-6 rounded-2xl border border-[#13172E]/50">
+                    <div className="text-center md:border-r border-[#13172E] py-2">
+                      <span className="block text-[10px] uppercase font-bold text-slate-500 tracking-wider mb-1">Match Accuracy</span>
+                      <span className="text-3xl font-extrabold text-blue-400">{quizResult.matchScore}%</span>
+                    </div>
+                    <div className="col-span-2 space-y-1">
+                      <span className="block text-[9px] uppercase font-bold text-slate-500 tracking-wider">Top Career Recommendation</span>
+                      <span className="block text-sm font-bold text-white">{quizResult.matchProfile}</span>
+                      <p className="text-[11px] text-slate-400 leading-relaxed">
+                        Your choices reflect high aptitude in this role. Click Learning Roadmaps on the sidebar to inspect step-by-step curricula.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Strengths & Improvements */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-3">
+                      <h4 className="text-xs uppercase font-bold text-emerald-450 tracking-wider">Key Strengths</h4>
+                      <ul className="space-y-2">
+                        {quizResult.strengths.map((str, idx) => (
+                          <li key={idx} className="text-xs text-slate-300 flex gap-2">
+                            <span className="text-emerald-500 font-bold">✓</span>
+                            <span>{str}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div className="space-y-3">
+                      <h4 className="text-xs uppercase font-bold text-blue-450 tracking-wider">Growth Areas</h4>
+                      <ul className="space-y-2">
+                        {quizResult.improvements.map((imp, idx) => (
+                          <li key={idx} className="text-xs text-slate-300 flex gap-2">
+                            <span className="text-blue-500 font-bold">•</span>
+                            <span>{imp}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+
+                  {/* Actions footer */}
+                  <div className="pt-6 border-t border-[#13172E] flex justify-end gap-3">
+                    <button
+                      onClick={handleResetQuiz}
+                      className="px-5 py-2.5 border border-[#13172E] hover:bg-slate-900 rounded-xl text-xs font-bold text-slate-400 transition-colors"
+                    >
+                      Back to Quizzes
+                    </button>
+                    <button
+                      onClick={() => {
+                        const recRole = quizResult.matchProfile.toLowerCase();
+                        if (recRole.includes('frontend')) {
+                          setActiveRoadmap('frontend');
+                        } else if (recRole.includes('backend')) {
+                          setActiveRoadmap('backend');
+                        } else if (recRole.includes('devops')) {
+                          setActiveRoadmap('devops');
+                        } else if (recRole.includes('learning') || recRole.includes('machine')) {
+                          setActiveRoadmap('ml');
+                        }
+                        setActiveTab('roadmaps');
+                        handleResetQuiz();
+                      }}
+                      className="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-blue-500/10"
+                    >
+                      View Recommended Roadmap
+                    </button>
+                  </div>
+                </div>
+              );
+            }
+
+            // View 2: Active Quiz Testing Mode
+            if (activeQuiz) {
+              const currentQuestion = activeQuiz.questions[currentQuestionIdx];
+              const totalQuestions = activeQuiz.questions.length;
+              const hasSelected = selectedAnswers[currentQuestionIdx] !== undefined;
+
+              return (
+                <div className="max-w-2xl mx-auto bg-[#090A12] border border-[#13172E] rounded-3xl p-6 md:p-8 space-y-6 animate-fadeIn text-left">
+                  
+                  {/* Top Progress */}
+                  <div className="flex justify-between items-center text-xs font-bold text-slate-400">
+                    <span>{activeQuiz.title}</span>
+                    <span>Question {currentQuestionIdx + 1} of {totalQuestions}</span>
+                  </div>
+
+                  {/* Progress Bar */}
+                  <div className="w-full h-1.5 bg-[#07080F] rounded-full overflow-hidden border border-[#13172E]/50">
+                    <div 
+                      className="h-full bg-blue-600 transition-all duration-350"
+                      style={{ width: `${((currentQuestionIdx + 1) / totalQuestions) * 100}%` }}
+                    />
+                  </div>
+
+                  {/* Question Prompt */}
+                  <h3 className="text-sm font-bold text-white leading-relaxed pt-2">
+                    {currentQuestion.text}
+                  </h3>
+
+                  {/* Multiple Choice Buttons */}
+                  <div className="space-y-3 pt-2">
+                    {currentQuestion.options.map((option, oIdx) => {
+                      const isSelected = selectedAnswers[currentQuestionIdx] === oIdx;
+                      return (
+                        <button
+                          key={oIdx}
+                          onClick={() => handleSelectQuizOption(currentQuestionIdx, oIdx)}
+                          className={`w-full p-4 rounded-2xl border text-xs font-medium text-left transition-all flex items-start gap-3 ${
+                            isSelected
+                              ? 'bg-blue-600/10 border-blue-500 text-blue-400 shadow-md shadow-blue-500/5'
+                              : 'bg-[#07080F] border-[#13172E] text-slate-400 hover:border-slate-800'
+                          }`}
+                        >
+                          <span className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 text-[10px] mt-0.5 ${
+                            isSelected ? 'border-blue-500 bg-blue-600 text-white' : 'border-slate-600'
+                          }`}>
+                            {isSelected && '✓'}
+                          </span>
+                          <span>{option}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Navigation footer */}
+                  <div className="pt-4 border-t border-[#13172E]/50 flex justify-between">
+                    <button
+                      onClick={() => {
+                        if (currentQuestionIdx === 0) {
+                          handleResetQuiz();
+                        } else {
+                          setCurrentQuestionIdx(prev => prev - 1);
+                        }
+                      }}
+                      className="px-4 py-2 border border-[#13172E] hover:bg-slate-900 rounded-xl text-xs font-bold text-slate-400 transition-colors"
+                    >
+                      {currentQuestionIdx === 0 ? 'Quit Quiz' : 'Back'}
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        if (currentQuestionIdx < totalQuestions - 1) {
+                          setCurrentQuestionIdx(prev => prev + 1);
+                        } else {
+                          handleSubmitQuiz();
+                        }
+                      }}
+                      disabled={!hasSelected}
+                      className="px-6 py-2 bg-blue-600 hover:bg-blue-500 disabled:bg-slate-800 disabled:text-slate-500 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-blue-500/10"
+                    >
+                      {currentQuestionIdx === totalQuestions - 1 ? 'Submit Assessment' : 'Next Question'}
+                    </button>
+                  </div>
+                </div>
+              );
+            }
+
+            // View 3: Quizzes list (default list view)
+            return (
+              <div className="space-y-8 animate-fadeIn text-left">
+                
+                {/* Section Header */}
+                <div>
+                  <h2 className="text-lg font-sora font-extrabold text-white">📝 Career Capability Assessments</h2>
+                  <p className="text-xs text-slate-500">Pick a quiz to test your engineering aptitudes, creative fits, or systems logics.</p>
+                </div>
+
+                {/* Quizzes List Cards Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {QUIZZES_DATA.map(quiz => (
+                    <div key={quiz.id} className="p-6 rounded-3xl border border-[#13172E] bg-[#090A12] flex flex-col justify-between space-y-4">
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-start">
+                          <span className="px-2.5 py-0.5 text-[9px] font-bold bg-blue-600/10 border border-blue-500/20 text-blue-400 rounded-md">
+                            {quiz.category}
+                          </span>
+                          <span className="text-[10px] text-slate-500 font-medium">{quiz.duration}</span>
+                        </div>
+                        <h3 className="text-sm font-bold text-white">{quiz.title}</h3>
+                        <p className="text-[11px] text-slate-400 leading-relaxed">{quiz.desc}</p>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-2 border-t border-[#13172E]/40">
+                        <span className="text-[10px] text-slate-500 font-bold">Level: {quiz.difficulty}</span>
+                        <button
+                          onClick={() => handleStartQuiz(quiz.id)}
+                          className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl transition-all"
+                        >
+                          Start Quiz
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Previous quiz attempts logs */}
+                <div className="p-6 bg-[#090A12] border border-[#13172E] rounded-3xl space-y-4">
+                  <h3 className="text-xs uppercase font-bold text-slate-400 tracking-wider">Previous Quiz Attempts</h3>
+                  
+                  {quizAttempts.length > 0 ? (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-xs border-collapse">
+                        <thead>
+                          <tr className="border-b border-[#13172E] text-slate-500 font-bold text-[10px] uppercase">
+                            <th className="pb-3">Assessment Title</th>
+                            <th className="pb-3">Matching Profile</th>
+                            <th className="pb-3 text-center">Score</th>
+                            <th className="pb-3 text-right">Completion Date</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-[#13172E]/50 text-slate-300">
+                          {quizAttempts.map((att, idx) => (
+                            <tr key={idx} className="hover:bg-slate-900/10">
+                              <td className="py-3.5 font-bold text-white">{att.quizTitle}</td>
+                              <td className="py-3.5">{att.matchProfile}</td>
+                              <td className="py-3.5 text-center font-bold text-blue-400">{att.score}%</td>
+                              <td className="py-3.5 text-right text-slate-500">{att.date}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <div className="py-8 text-center text-xs text-slate-500">
+                      No previous attempts logged yet. Start a quiz above to view logs.
+                    </div>
+                  )}
+                </div>
+
+              </div>
+            );
+          })()}
         </main>
       </div>
 
