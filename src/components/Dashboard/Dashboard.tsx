@@ -126,6 +126,9 @@ interface RoadmapStep {
   title: string;
   desc: string;
   resources: string[];
+  subtopics?: string[];
+  projects?: string[];
+  estimatedTime?: string;
 }
 
 interface RoadmapConfig {
@@ -145,14 +148,78 @@ const ROADMAPS_DATA: { [key: string]: RoadmapConfig } = {
     hours: 450,
     enrolled: 'Trending • 449K enrolled',
     steps: [
-      { id: 'fe-1', title: 'Internet Protocols & DNS', desc: 'Understand DNS mapping, IP addressing, HTTP request-response headers, and DOM lifecycle.', resources: ['MDN Web Docs', 'HTTP Protocol Overview'] },
-      { id: 'fe-2', title: 'HTML5 Semantic Layout & SEO', desc: 'Valid semantic tags, search engine indexing structures, meta fields, and WCAG accessibility standards.', resources: ['HTML Living Standard', 'WCAG Guidelines'] },
-      { id: 'fe-3', title: 'CSS3 Grid, Flexbox, & Tailwind Spacings', desc: 'Modern responsive grids, containers, spacing rules, utility tokens, transitions, and layout frameworks.', resources: ['TailwindCSS Docs', 'CSS Grid Garden'] },
-      { id: 'fe-4', title: 'JavaScript Engine & Async REST Integration', desc: 'Callbacks, Promises, Async/Await APIs fetch, ES6 syntax patterns, closures, and browser memory cycles.', resources: ['Eloquent JS', 'MDN JS Reference'] },
-      { id: 'fe-5', title: 'React Framework, Rendering, & State Trees', desc: 'Virtual DOM, components lifecycle, state hooks (useState, useEffect), router mechanisms, and context providers.', resources: ['Official React Docs', 'TypeScript React Cheatsheet'] },
-      { id: 'fe-6', title: 'Next.js App Router, SSR, & RSC', desc: 'Server-side rendering (SSR), static site generation (SSG), React Server Components (RSC), and Server Actions.', resources: ['Next.js App Router Guide', 'RSC Deep Dive'] },
-      { id: 'fe-7', title: 'Frontend Testing (Jest, RTL, & Cypress)', desc: 'Writing unit tests for hooks/components, user interaction mocking, and end-to-end (E2E) UI testing.', resources: ['Jest Documentation', 'Testing Library Guides'] },
-      { id: 'fe-8', title: 'Web Performance Optimization & Vitals', desc: 'Code splitting, dynamic imports, lazy loading assets, image optimization formats, and monitoring Lighthouse Web Vitals.', resources: ['Google Web Vitals', 'Lighthouse Optimization Checklist'] }
+      { 
+        id: 'fe-1', 
+        title: 'Internet Protocols & DNS', 
+        desc: 'Understand DNS mapping, IP addressing, HTTP request-response headers, and DOM lifecycle.', 
+        resources: ['MDN Web Docs', 'HTTP Protocol Overview'],
+        subtopics: ['How the Internet works (IP/TCP)', 'DNS Resolution & Name Servers', 'HTTP request-response structure', 'DOM, CSSOM & Render tree generation'],
+        projects: ['Perform DNS lookups via nslookup/dig, analyze network requests via browser DevTools network panel.'],
+        estimatedTime: '12 hours'
+      },
+      { 
+        id: 'fe-2', 
+        title: 'HTML5 Semantic Layout & SEO', 
+        desc: 'Valid semantic tags, search engine indexing structures, meta fields, and WCAG accessibility standards.', 
+        resources: ['HTML Living Standard', 'WCAG Guidelines'],
+        subtopics: ['Semantic Tags (<article>, <section>, etc.)', 'Meta tags & OpenGraph metadata', 'ARIA roles & accessibility tags', 'SEO indexing structures'],
+        projects: ['Build a highly accessible article dashboard that scores 100% on Lighthouse Accessibility audit.'],
+        estimatedTime: '15 hours'
+      },
+      { 
+        id: 'fe-3', 
+        title: 'CSS3 Grid, Flexbox, & Tailwind Spacings', 
+        desc: 'Modern responsive grids, containers, spacing rules, utility tokens, transitions, and layout frameworks.', 
+        resources: ['TailwindCSS Docs', 'CSS Grid Garden'],
+        subtopics: ['Flexbox container alignments', 'CSS Grid layouts & dynamic tracks', 'Responsive breakpoints', 'Tailwind custom theme config'],
+        projects: ['Design a fully responsive complex dashboard layout using TailwindCSS Grid and Flexbox.'],
+        estimatedTime: '25 hours'
+      },
+      { 
+        id: 'fe-4', 
+        title: 'JavaScript Engine & Async REST Integration', 
+        desc: 'Callbacks, Promises, Async/Await APIs fetch, ES6 syntax patterns, closures, and browser memory cycles.', 
+        resources: ['Eloquent JS', 'MDN JS Reference'],
+        subtopics: ['Event loops & microtasks', 'ES6 array methods & destructuring', 'Promises & Async/Await syntax', 'Fetch API & REST request methods'],
+        projects: ['Create a client-side weather app that fetches data asynchronously, handles loading/error states, and updates UI dynamically.'],
+        estimatedTime: '40 hours'
+      },
+      { 
+        id: 'fe-5', 
+        title: 'React Framework, Rendering, & State Trees', 
+        desc: 'Virtual DOM, components lifecycle, state hooks (useState, useEffect), router mechanisms, and context providers.', 
+        resources: ['Official React Docs', 'TypeScript React Cheatsheet'],
+        subtopics: ['Virtual DOM diffing', 'Hooks lifecycle (useState, useEffect, useMemo)', 'Context API & State sharing', 'React Router or Navigation hooks'],
+        projects: ['Develop an interactive e-commerce shopping cart component with persistent local storage state.'],
+        estimatedTime: '60 hours'
+      },
+      { 
+        id: 'fe-6', 
+        title: 'Next.js App Router, SSR, & RSC', 
+        desc: 'Server-side rendering (SSR), static site generation (SSG), React Server Components (RSC), and Server Actions.', 
+        resources: ['Next.js App Router Guide', 'RSC Deep Dive'],
+        subtopics: ['App Router directory architecture', 'React Server Components vs Client Components', 'Data fetching & caching strategy', 'Server Actions for form submissions'],
+        projects: ['Build a dynamic markdown blog using Next.js App Router with server-side rendered dynamic posts.'],
+        estimatedTime: '45 hours'
+      },
+      { 
+        id: 'fe-7', 
+        title: 'Frontend Testing (Jest, RTL, & Cypress)', 
+        desc: 'Writing unit tests for hooks/components, user interaction mocking, and end-to-end (E2E) UI testing.', 
+        resources: ['Jest Documentation', 'Testing Library Guides'],
+        subtopics: ['Unit testing with Jest', 'Component testing with React Testing Library', 'Mocking API requests', 'E2E testing with Cypress'],
+        projects: ['Write comprehensive unit tests for a custom React hook and E2E login/checkout flows.'],
+        estimatedTime: '30 hours'
+      },
+      { 
+        id: 'fe-8', 
+        title: 'Web Performance Optimization & Vitals', 
+        desc: 'Code splitting, dynamic imports, lazy loading assets, image optimization formats, and monitoring Lighthouse Web Vitals.', 
+        resources: ['Google Web Vitals', 'Lighthouse Optimization Checklist'],
+        subtopics: ['Core Web Vitals (LCP, FID, CLS)', 'Dynamic imports & React.lazy', 'Image rendering formats (WebP/AVIF)', 'Bundle analysis & tree shaking'],
+        projects: ['Audit a slow project, implement code splitting, optimize assets, and increase performance score from 50 to 95+.'],
+        estimatedTime: '20 hours'
+      }
     ]
   },
   backend: {
@@ -162,14 +229,78 @@ const ROADMAPS_DATA: { [key: string]: RoadmapConfig } = {
     hours: 520,
     enrolled: 'Hot • 320K enrolled',
     steps: [
-      { id: 'be-1', title: 'Server Runtimes & Languages (NodeJS / Go / Python)', desc: 'Concurrency models, thread pools, file management, error catch middlewares, and server frameworks.', resources: ['NodeJS Architecture Guide', 'Go Tour for Beginners'] },
-      { id: 'be-2', title: 'SQL & NoSQL Database Indexes & ACID Transactions', desc: 'Entity relationships, SQL query indexing, database isolation levels (ACID), Redis cache clusters, and MongoDB queries.', resources: ['PostgreSQL Indexing docs', 'Designing Data-Intensive Applications'] },
-      { id: 'be-3', title: 'API Protocols: REST, GraphQL, & gRPC Protobufs', desc: 'API endpoints design, payload serialization formats, gRPC channels, Swagger specifications, and rate limiters.', resources: ['Swagger Spec API Guidelines', 'GraphQL schemas tutorial'] },
-      { id: 'be-4', title: 'Security: OAuth2, JWT Sessions, & secure cookies', desc: 'Implementing cross-origin permissions (CORS), secure headers, JWT auth cycles, and password hashing (bcrypt).', resources: ['OWASP Top 10 Security Rules', 'JWT Decoder Guide'] },
-      { id: 'be-5', title: 'Background Processing & Message Queues', desc: 'Asynchronous event listeners, pub/sub architectures, RabbitMQ broker channels, BullMQ jobs, and Redis locks.', resources: ['RabbitMQ official docs', 'BullMQ quickstart'] },
-      { id: 'be-6', title: 'Microservices & Architectural Patterns', desc: 'Designing distributed architectures, API gateways, database per service patterns, and event sourcing principles.', resources: ['Microservices.io guide', 'Martin Fowler Blog'] },
-      { id: 'be-7', title: 'Backend Testing: Unit, Integration, & Mocking', desc: 'Writing mock tests with Sinon/Mockery, DB isolation testing, and API integration validations.', resources: ['Backend Testing Cookbook', 'SuperTest guide'] },
-      { id: 'be-8', title: 'APM Monitoring, Metrics, & Structured Logging', desc: 'Integrating Prometheus metric collectors, Grafana dashboard visualization, Winston/Zap logging, and ELK stack search.', resources: ['Prometheus Quickstart', 'Winston Logging Best Practices'] }
+      { 
+        id: 'be-1', 
+        title: 'Server Runtimes & Languages (NodeJS / Go / Python)', 
+        desc: 'Concurrency models, thread pools, file management, error catch middlewares, and server frameworks.', 
+        resources: ['NodeJS Architecture Guide', 'Go Tour for Beginners'],
+        subtopics: ['Event-driven non-blocking I/O in Node', 'Goroutines and channels in Go', 'HTTP middleware chain', 'Global exception handling'],
+        projects: ['Build a robust API shell in Node/Express or Go with comprehensive error loggers and environment configuration.'],
+        estimatedTime: '35 hours'
+      },
+      { 
+        id: 'be-2', 
+        title: 'SQL & NoSQL Database Indexes & ACID Transactions', 
+        desc: 'Entity relationships, SQL query indexing, database isolation levels (ACID), Redis cache clusters, and MongoDB queries.', 
+        resources: ['PostgreSQL Indexing docs', 'Designing Data-Intensive Applications'],
+        subtopics: ['SQL database normalizations', 'B-Tree & Hash indexes', 'ACID transactions & isolation levels', 'Redis key-value caching policies'],
+        projects: ['Design a database schema for a banking/e-commerce ledger and implement transactional locks and queries.'],
+        estimatedTime: '45 hours'
+      },
+      { 
+        id: 'be-3', 
+        title: 'API Protocols: REST, GraphQL, & gRPC Protobufs', 
+        desc: 'API endpoints design, payload serialization formats, gRPC channels, Swagger specifications, and rate limiters.', 
+        resources: ['Swagger Spec API Guidelines', 'GraphQL schemas tutorial'],
+        subtopics: ['REST API design rules', 'GraphQL schemas, queries, & resolvers', 'gRPC Protocol Buffers & streaming', 'Rate limiting algorithms (token bucket)'],
+        projects: ['Create a gateway routing interface that aggregates REST endpoints and exposes them via a GraphQL gateway.'],
+        estimatedTime: '40 hours'
+      },
+      { 
+        id: 'be-4', 
+        title: 'Security: OAuth2, JWT Sessions, & secure cookies', 
+        desc: 'Implementing cross-origin permissions (CORS), secure headers, JWT auth cycles, and password hashing (bcrypt).', 
+        resources: ['OWASP Top 10 Security Rules', 'JWT Decoder Guide'],
+        subtopics: ['JWT sign/verify mechanisms', 'CSRF and XSS protection strategies', 'OAuth2 authorization code flows', 'Secure, HTTP-only, SameSite cookies'],
+        projects: ['Implement a secure authentication microservice featuring access/refresh token rotation and secure cookies.'],
+        estimatedTime: '30 hours'
+      },
+      { 
+        id: 'be-5', 
+        title: 'Background Processing & Message Queues', 
+        desc: 'Asynchronous event listeners, pub/sub architectures, RabbitMQ broker channels, BullMQ jobs, and Redis locks.', 
+        resources: ['RabbitMQ official docs', 'BullMQ quickstart'],
+        subtopics: ['Message brokers (AMQP vs Pub/Sub)', 'BullMQ job retries & delay processors', 'Distributed locks with Redis Redlock', 'Eventual consistency paradigms'],
+        projects: ['Build a video processing microservice that processes uploaded video encoding jobs asynchronously via message queues.'],
+        estimatedTime: '35 hours'
+      },
+      { 
+        id: 'be-6', 
+        title: 'Microservices & Architectural Patterns', 
+        desc: 'Designing distributed architectures, API gateways, database per service patterns, and event sourcing principles.', 
+        resources: ['Microservices.io guide', 'Martin Fowler Blog'],
+        subtopics: ['Service discovery & health checks', 'API Gateway pattern (e.g. Kong, Envoy)', 'Database per service architecture', 'Event Sourcing & CQRS'],
+        projects: ['Structure a miniature microservices application using Docker Compose with independent database containers.'],
+        estimatedTime: '50 hours'
+      },
+      { 
+        id: 'be-7', 
+        title: 'Backend Testing: Unit, Integration, & Mocking', 
+        desc: 'Writing mock tests with Sinon/Mockery, DB isolation testing, and API integration validations.', 
+        resources: ['Backend Testing Cookbook', 'SuperTest guide'],
+        subtopics: ['Mocking external API dependencies', 'SuperTest for HTTP endpoint testing', 'Test container databases', 'Code coverage reports'],
+        projects: ['Write integration tests for a complex transaction handler, mocking the payment gateway and external service hooks.'],
+        estimatedTime: '25 hours'
+      },
+      { 
+        id: 'be-8', 
+        title: 'APM Monitoring, Metrics, & Structured Logging', 
+        desc: 'Integrating Prometheus metric collectors, Grafana dashboard visualization, Winston/Zap logging, and ELK stack search.', 
+        resources: ['Prometheus Quickstart', 'Winston Logging Best Practices'],
+        subtopics: ['Structured logs formatting (JSON)', 'Prometheus metrics scrapers', 'Grafana system visualizers', 'Distributed request tracing (Zipkin/Jaeger)'],
+        projects: ['Setup Prometheus and Grafana alerts to monitor active user requests and API error rate peaks.'],
+        estimatedTime: '20 hours'
+      }
     ]
   },
   fullstack: {
@@ -179,14 +310,78 @@ const ROADMAPS_DATA: { [key: string]: RoadmapConfig } = {
     hours: 600,
     enrolled: 'Popular • 510K enrolled',
     steps: [
-      { id: 'fs-1', title: 'Next.js, Server Actions, & RSC', desc: 'Server side rendering (SSR), static site generators (SSG), client hydration patterns, and Next routing.', resources: ['NextJS Routing docs', 'React Server Components guide'] },
-      { id: 'fs-2', title: 'ORMs (Prisma / Drizzle) & Schema Migrations', desc: 'Type-safe database queries, transactional statements, foreign keys constraints, and migration scripts.', resources: ['Prisma Client guides', 'Drizzle ORM quickstart'] },
-      { id: 'fs-3', title: 'Session Stores & Third-Party Auth Integrations', desc: 'NextAuth providers configuration, multi-factor auth schemes, user tables management, and credentials providers.', resources: ['NextAuth.js Documentation', 'Auth0 custom strategies'] },
-      { id: 'fs-4', title: 'Docker Containers & Cloud deployment pipelines', desc: 'Multi-stage dockerfiles, environment configuration maps, AWS EC2 containers deployment, and serverless edge functions.', resources: ['Docker reference manual', 'AWS Serverless Developer Guide'] },
-      { id: 'fs-5', title: 'API Gateways & Edge Middleware Routing', desc: 'Configuring custom subdomains routing, geo-blocking middleware, request pre-validation, and JWT extraction at edge.', resources: ['Vercel Edge Middleware', 'Cloudflare Workers docs'] },
-      { id: 'fs-6', title: 'Real-time Messaging (WebSockets & SSE)', desc: 'Integrating event listeners with Socket.io, real-time message broadcasting, and server-sent events (SSE).', resources: ['Socket.io docs', 'SSE Guide'] },
-      { id: 'fs-7', title: 'Payment Gateways & Secure Webhooks (Stripe)', desc: 'Managing Stripe customer portal checkouts, webhook signature verification, and event processing.', resources: ['Stripe API reference', 'Webhooks debugging guide'] },
-      { id: 'fs-8', title: 'Serverless Databases & Caching at Edge', desc: 'Distributed database instances (PlanetScale, Neon), caching queries using Vercel KV, and global replication.', resources: ['Neon serverless Postgres docs', 'Vercel KV guide'] }
+      { 
+        id: 'fs-1', 
+        title: 'Next.js, Server Actions, & RSC', 
+        desc: 'Server side rendering (SSR), static site generators (SSG), client hydration patterns, and Next routing.', 
+        resources: ['NextJS Routing docs', 'React Server Components guide'],
+        subtopics: ['Server Actions for client form validation', 'Dynamic caching & revalidations', 'Hydration error debugging', 'Streaming HTML & suspense layouts'],
+        projects: ['Build a real-time blog database that loads pages instantly with SSR and handles comments via Server Actions.'],
+        estimatedTime: '40 hours'
+      },
+      { 
+        id: 'fs-2', 
+        title: 'ORMs (Prisma / Drizzle) & Schema Migrations', 
+        desc: 'Type-safe database queries, transactional statements, foreign keys constraints, and migration scripts.', 
+        resources: ['Prisma Client guides', 'Drizzle ORM quickstart'],
+        subtopics: ['Writing clean database schema files', 'One-to-many & Many-to-many queries', 'Database migration version controls', 'Seeding dev environments'],
+        projects: ['Write complex SQL relationships using Drizzle or Prisma for an online course platform schema.'],
+        estimatedTime: '30 hours'
+      },
+      { 
+        id: 'fs-3', 
+        title: 'Session Stores & Third-Party Auth Integrations', 
+        desc: 'NextAuth providers configuration, multi-factor auth schemes, user tables management, and credentials providers.', 
+        resources: ['NextAuth.js Documentation', 'Auth0 custom strategies'],
+        subtopics: ['Session vs JWT strategy', 'Social OAuth login setups (Google, GitHub)', 'Role-based access control (RBAC) middleware', 'Password recovery workflows'],
+        projects: ['Implement a secure SaaS dashboard requiring authentication, redirecting anonymous users to sign in.'],
+        estimatedTime: '35 hours'
+      },
+      { 
+        id: 'fs-4', 
+        title: 'Docker Containers & Cloud deployment pipelines', 
+        desc: 'Multi-stage dockerfiles, environment configuration maps, AWS EC2 containers deployment, and serverless edge functions.', 
+        resources: ['Docker reference manual', 'AWS Serverless Developer Guide'],
+        subtopics: ['Writing lightweight multi-stage Dockerfiles', 'Configuring environment variables in production', 'AWS App Runner or ECS deployments', 'Serverless execution timeouts'],
+        projects: ['Dockerize a full React & Node application, pushing the built image to AWS or Vercel edge runtime.'],
+        estimatedTime: '45 hours'
+      },
+      { 
+        id: 'fs-5', 
+        title: 'API Gateways & Edge Middleware Routing', 
+        desc: 'Configuring custom subdomains routing, geo-blocking middleware, request pre-validation, and JWT extraction at edge.', 
+        resources: ['Vercel Edge Middleware', 'Cloudflare Workers docs'],
+        subtopics: ['Edge runtime capabilities', 'URL rewrites and redirects', 'Geo-IP header extraction', 'JWT parsing at the edge layer'],
+        projects: ['Implement geolocation routing redirecting global traffic to localized site subdomains.'],
+        estimatedTime: '30 hours'
+      },
+      { 
+        id: 'fs-6', 
+        title: 'Real-time Messaging (WebSockets & SSE)', 
+        desc: 'Integrating event listeners with Socket.io, real-time message broadcasting, and server-sent events (SSE).', 
+        resources: ['Socket.io docs', 'SSE Guide'],
+        subtopics: ['Websocket connection upgrades', 'Room management in Socket.io', 'Server-Sent Events (SSE) push messages', 'Handling connection drop-offs'],
+        projects: ['Build a real-time collaborative whiteboard or chatroom supporting user online status tags.'],
+        estimatedTime: '40 hours'
+      },
+      { 
+        id: 'fs-7', 
+        title: 'Payment Gateways & Secure Webhooks (Stripe)', 
+        desc: 'Managing Stripe customer portal checkouts, webhook signature verification, and event processing.', 
+        resources: ['Stripe API reference', 'Webhooks debugging guide'],
+        subtopics: ['Stripe checkout session creation', 'Webhook signature matching & validation', 'Managing subscription items', 'Handling card failure webhooks'],
+        projects: ['Develop a complete SaaS subscription pricing page integrated with Stripe webhooks to update user tier levels.'],
+        estimatedTime: '45 hours'
+      },
+      { 
+        id: 'fs-8', 
+        title: 'Serverless Databases & Caching at Edge', 
+        desc: 'Distributed database instances (PlanetScale, Neon), caching queries using Vercel KV, and global replication.', 
+        resources: ['Neon serverless Postgres docs', 'Vercel KV guide'],
+        subtopics: ['Connection pooling in serverless', 'Vercel KV / Redis edge setups', 'Global CDN replication rules', 'Handling cold starts'],
+        projects: ['Implement a fast search caching system storing heavy database results inside Vercel Redis KV cache.'],
+        estimatedTime: '30 hours'
+      }
     ]
   },
   devops: {
@@ -196,14 +391,78 @@ const ROADMAPS_DATA: { [key: string]: RoadmapConfig } = {
     hours: 480,
     enrolled: 'High Demand • 190K enrolled',
     steps: [
-      { id: 'do-1', title: 'Linux Administration, Shell Scripting, & SSH', desc: 'Unix directory permissions, process management, Cron schedulers, Bash script automations, and secure SSH tunnels.', resources: ['Linux Command Line Bible', 'Shell Scripting guides'] },
-      { id: 'do-2', title: 'Docker Orchestration & Container Caching', desc: 'Multi-stage docker caching, network configurations, volume mounts, and environment configuration mapping.', resources: ['Docker Multi-stage guide', 'Dockerfile Best Practices'] },
-      { id: 'do-3', title: 'Kubernetes Pods, Ingress, & Helm Charts', desc: 'Orchestrating container fleets, configuring services ingress routing rules, secrets encryption, and Helm package managers.', resources: ['Kubernetes official tutorials', 'Helm documentation'] },
-      { id: 'do-4', title: 'Infrastructure as Code: Terraform Systems', desc: 'Managing cloud infrastructure declaratively, state storage files, provider configuration parameters, and custom modules.', resources: ['Terraform CLI reference', 'HashiCorp learning portal'] },
-      { id: 'do-5', title: 'CI/CD Pipelines & GitHub Runners', desc: 'Configuring test runners, build pipelines, secrets storage rotations, environment variables mapping, and auto deployments.', resources: ['GitHub Actions guide', 'GitLab CI reference docs'] },
-      { id: 'do-6', title: 'Cloud Administration (AWS IAM, VPC, & security)', desc: 'Configuring secure VPC private subnets, configuring Route53 tables, and setting up IAM least privilege permission maps.', resources: ['AWS IAM Security', 'VPC Architecture Blueprint'] },
-      { id: 'do-7', title: 'APM Monitoring & Alert systems (Grafana)', desc: 'Prometheus metric scraping rules, configuring alerts pipelines with PagerDuty, and visual dashboard configuration.', resources: ['Grafana Alerting Guide', 'PagerDuty Integration'] },
-      { id: 'do-8', title: 'Secret Management Systems (HashiCorp Vault)', desc: 'Encrypting database passwords, dynamic secrets creation, keys rotation policies, and Vault access engines.', resources: ['HashiCorp Vault Reference', 'KMS encryption basics'] }
+      { 
+        id: 'do-1', 
+        title: 'Linux Administration, Shell Scripting, & SSH', 
+        desc: 'Unix directory permissions, process management, Cron schedulers, Bash script automations, and secure SSH tunnels.', 
+        resources: ['Linux Command Line Bible', 'Shell Scripting guides'],
+        subtopics: ['Bash script loops, variables, and conditions', 'Linux file permissions (chmod/chown)', 'Process signals & background execution', 'SSH key setups & config files'],
+        projects: ['Write a backup bash script executing nightly database dumps, uploading them to remote storage.'],
+        estimatedTime: '25 hours'
+      },
+      { 
+        id: 'do-2', 
+        title: 'Docker Orchestration & Container Caching', 
+        desc: 'Multi-stage docker caching, network configurations, volume mounts, and environment configuration mapping.', 
+        resources: ['Docker Multi-stage guide', 'Dockerfile Best Practices'],
+        subtopics: ['Docker layer caching techniques', 'Docker bridge & host networking', 'Volume binds & persistence mapping', 'Env config maps'],
+        projects: ['Configure Docker Compose linking a React app, Express api, and MySQL database.'],
+        estimatedTime: '30 hours'
+      },
+      { 
+        id: 'do-3', 
+        title: 'Kubernetes Pods, Ingress, & Helm Charts', 
+        desc: 'Orchestrating container fleets, configuring services ingress routing rules, secrets encryption, and Helm package managers.', 
+        resources: ['Kubernetes official tutorials', 'Helm documentation'],
+        subtopics: ['Pod lifecycles & ReplicaSets', 'Service resource definitions (ClusterIP, NodePort)', 'Ingress controller setup (Nginx)', 'Helm chart templates'],
+        projects: ['Deploy an API container to a local Minikube cluster and configure ingress paths with health probes.'],
+        estimatedTime: '55 hours'
+      },
+      { 
+        id: 'do-4', 
+        title: 'Infrastructure as Code: Terraform Systems', 
+        desc: 'Managing cloud infrastructure declaratively, state storage files, provider configuration parameters, and custom modules.', 
+        resources: ['Terraform CLI reference', 'HashiCorp learning portal'],
+        subtopics: ['Declarative vs Imperative IaC', 'Terraform state locking with S3/DynamoDB', 'Custom reusable modules', 'Terraform variables and outputs'],
+        projects: ['Provision an AWS VPC complete with public/private subnets and an EC2 instance using Terraform.'],
+        estimatedTime: '45 hours'
+      },
+      { 
+        id: 'do-5', 
+        title: 'CI/CD Pipelines & GitHub Runners', 
+        desc: 'Configuring test runners, build pipelines, secrets storage rotations, environment variables mapping, and auto deployments.', 
+        resources: ['GitHub Actions guide', 'GitLab CI reference docs'],
+        subtopics: ['YAML pipeline structures', 'Action caching workflows', 'Secrets management in pipelines', 'Conditional deployments'],
+        projects: ['Build a GitHub Action deploying a serverless app to AWS upon pull request merge.'],
+        estimatedTime: '35 hours'
+      },
+      { 
+        id: 'do-6', 
+        title: 'Cloud Administration (AWS IAM, VPC, & security)', 
+        desc: 'Configuring secure VPC private subnets, configuring Route53 tables, and setting up IAM least privilege permission maps.', 
+        resources: ['AWS IAM Security', 'VPC Architecture Blueprint'],
+        subtopics: ['AWS IAM policies and role assume rules', 'VPC routing tables, IGW, and NAT Gateways', 'Route53 records setups', 'CloudWatch log groups'],
+        projects: ['Configure a private database subnet in AWS accessible only from a public web server security group.'],
+        estimatedTime: '50 hours'
+      },
+      { 
+        id: 'do-7', 
+        title: 'APM Monitoring & Alert systems (Grafana)', 
+        desc: 'Prometheus metric scraping rules, configuring alerts pipelines with PagerDuty, and visual dashboard configuration.', 
+        resources: ['Grafana Alerting Guide', 'PagerDuty Integration'],
+        subtopics: ['Scrape intervals config', 'PromQL queries formulation', 'Grafana dashboard visualizations', 'Alert manager channels mapping'],
+        projects: ['Design a Grafana dashboard graphing CPU limits and alerting slack on critical threshold violations.'],
+        estimatedTime: '25 hours'
+      },
+      { 
+        id: 'do-8', 
+        title: 'Secret Management Systems (HashiCorp Vault)', 
+        desc: 'Encrypting database passwords, dynamic secrets creation, keys rotation policies, and Vault access engines.', 
+        resources: ['HashiCorp Vault Reference', 'KMS encryption basics'],
+        subtopics: ['Vault storage engines configuration', 'Dynamic database secrets generation', 'Key rotation policies & wrapping', 'AppRole authentication method'],
+        projects: ['Setup a local HashiCorp Vault server, retrieve credentials securely inside an active node service.'],
+        estimatedTime: '25 hours'
+      }
     ]
   },
   ml: {
@@ -213,14 +472,78 @@ const ROADMAPS_DATA: { [key: string]: RoadmapConfig } = {
     hours: 550,
     enrolled: 'Trending • 280K enrolled',
     steps: [
-      { id: 'ml-1', title: 'Mathematics: Calculus, Linear Algebra, & Stats', desc: 'Vector matrix operations, partial derivatives, loss functions theory, and statistical probability distributions.', resources: ['Khan Academy Advanced Stats', 'MIT Matrix Lectures'] },
-      { id: 'ml-2', title: 'Structured Data Processing (Pandas & NumPy)', desc: 'Data cleaning, feature selections, vectorizations, missing value interpolations, and visualizations.', resources: ['Pandas Cookbooks', 'NumPy Reference manual'] },
-      { id: 'ml-3', title: 'Data Visualization & Feature Engineering', desc: 'Designing scatter plots, correlation matrices with Seaborn, out-of-distribution detection, and normalization.', resources: ['Seaborn Quickstart', 'Matplotlib tutorials'] },
-      { id: 'ml-4', title: 'Classical ML Models (Scikit-Learn)', desc: 'Training decision trees, linear regressions, Support Vector Machines (SVM), and hyperparameter grid searches.', resources: ['Scikit-Learn documentation', 'Intro to ML with Python'] },
-      { id: 'ml-5', title: 'Neural Architectures & Training (PyTorch)', desc: 'Backpropagations, layers configurations (CNN, RNN, Transformers), optimization cycles, and GPU tensor training.', resources: ['PyTorch official tutorials', 'Deep Learning Book'] },
-      { id: 'ml-6', title: 'Transformers & Large Language Models (LLMs)', desc: 'Fine-tuning attention maps, configuring multi-head attention weights, HuggingFace dataset pipelines, and tokenizers.', resources: ['HuggingFace Course', 'Attention Is All You Need Paper'] },
-      { id: 'ml-7', title: 'MLOps: Model Versioning & MLflow Pipelines', desc: 'Configuring model registers, metadata versioning with DVC, hyperparameter run tracking, and artifacts storage.', resources: ['MLflow quickstart guide', 'DVC reference guide'] },
-      { id: 'ml-8', title: 'Model Serving & Inference Orchestration', desc: 'Deploying inference wrappers with Triton inference server, ONNX export configurations, and FastAPI endpoint serving.', resources: ['FastAPI ML serving template', 'ONNX conversion tutorial'] }
+      { 
+        id: 'ml-1', 
+        title: 'Mathematics: Calculus, Linear Algebra, & Stats', 
+        desc: 'Vector matrix operations, partial derivatives, loss functions theory, and statistical probability distributions.', 
+        resources: ['Khan Academy Advanced Stats', 'MIT Matrix Lectures'],
+        subtopics: ['Matrix multiplication & determinants', 'Eigenvalues & Eigenvectors', 'Partial derivatives & Gradient Descent', 'Bayes Theorem & probability distributions'],
+        projects: ['Implement standard Linear Regression and Gradient Descent formulas manually using pure Python.'],
+        estimatedTime: '40 hours'
+      },
+      { 
+        id: 'ml-2', 
+        title: 'Structured Data Processing (Pandas & NumPy)', 
+        desc: 'Data cleaning, feature selections, vectorizations, missing value interpolations, and visualizations.', 
+        resources: ['Pandas Cookbooks', 'NumPy Reference manual'],
+        subtopics: ['NumPy vector operations', 'Pandas DataFrame filtering & grouping', 'Handling missing dataset rows', 'Encoding categorical columns'],
+        projects: ['Clean and prepare a raw dataset containing missing housing data, readying it for modeling.'],
+        estimatedTime: '30 hours'
+      },
+      { 
+        id: 'ml-3', 
+        title: 'Data Visualization & Feature Engineering', 
+        desc: 'Designing scatter plots, correlation matrices with Seaborn, out-of-distribution detection, and normalization.', 
+        resources: ['Seaborn Quickstart', 'Matplotlib tutorials'],
+        subtopics: ['Correlation coefficient heatmap', 'Scatter plot distributions', 'StandardScaling and MinMaxScaling', 'Feature interaction columns creation'],
+        projects: ['Run Exploratory Data Analysis (EDA) on a churn dataset, plotting charts that reveal correlations.'],
+        estimatedTime: '25 hours'
+      },
+      { 
+        id: 'ml-4', 
+        title: 'Classical ML Models (Scikit-Learn)', 
+        desc: 'Training decision trees, linear regressions, Support Vector Machines (SVM), and hyperparameter grid searches.', 
+        resources: ['Scikit-Learn documentation', 'Intro to ML with Python'],
+        subtopics: ['Supervised vs Unsupervised models', 'K-fold Cross Validation', 'GridSearchCV and RandomSearchCV', 'Precision, Recall, & F1 metric evaluation'],
+        projects: ['Train a Random Forest classifier to predict customer defaults, tuning hyperparameters.'],
+        estimatedTime: '45 hours'
+      },
+      { 
+        id: 'ml-5', 
+        title: 'Neural Architectures & Training (PyTorch)', 
+        desc: 'Backpropagations, layers configurations (CNN, RNN, Transformers), optimization cycles, and GPU tensor training.', 
+        resources: ['PyTorch official tutorials', 'Deep Learning Book'],
+        subtopics: ['PyTorch Tensors & autograd', 'Designing Custom Neural Network modules', 'Loss Functions & Optimizers (Adam, SGD)', 'Training loops and CUDA execution'],
+        projects: ['Build an Image Classifier on the MNIST dataset, training a CNN architecture from scratch.'],
+        estimatedTime: '60 hours'
+      },
+      { 
+        id: 'ml-6', 
+        title: 'Transformers & Large Language Models (LLMs)', 
+        desc: 'Fine-tuning attention maps, configuring multi-head attention weights, HuggingFace dataset pipelines, and tokenizers.', 
+        resources: ['HuggingFace Course', 'Attention Is All You Need Paper'],
+        subtopics: ['Self-attention & Multi-head attention math', 'HuggingFace Transformers API', 'Parameter Efficient Fine-Tuning (LoRA)', 'Tokenization and masking strategies'],
+        projects: ['Fine-tune a small BERT/T5 model on a custom text classification task using HuggingFace.'],
+        estimatedTime: '55 hours'
+      },
+      { 
+        id: 'ml-7', 
+        title: 'MLOps: Model Versioning & MLflow Pipelines', 
+        desc: 'Configuring model registers, metadata versioning with DVC, hyperparameter run tracking, and artifacts storage.', 
+        resources: ['MLflow quickstart guide', 'DVC reference guide'],
+        subtopics: ['DVC integration with Git', 'MLflow experiment run logging', 'Registering model artifacts versioning', 'Pipeline orchestration (Kubeflow/Airflow)'],
+        projects: ['Create a complete automated training pipeline that records and registers model runs to MLflow.'],
+        estimatedTime: '40 hours'
+      },
+      { 
+        id: 'ml-8', 
+        title: 'Model Serving & Inference Orchestration', 
+        desc: 'Deploying inference wrappers with Triton inference server, ONNX export configurations, and FastAPI endpoint serving.', 
+        resources: ['FastAPI ML serving template', 'ONNX conversion tutorial'],
+        subtopics: ['FastAPI asynchronous routing', 'Converting PyTorch models to ONNX formats', 'Triton inference server layouts', 'Docker container optimization for GPUs'],
+        projects: ['Deploy your fine-tuned model behind a FastAPI wrapper endpoint, running inside Docker.'],
+        estimatedTime: '35 hours'
+      }
     ]
   }
 };
@@ -307,7 +630,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const [activeRoadmap, setActiveRoadmap] = useState<'frontend' | 'backend' | 'fullstack' | 'devops' | 'ml'>('frontend');
   const [customRoadmapPrompt, setCustomRoadmapPrompt] = useState('');
   const [isGeneratingRoadmap, setIsGeneratingRoadmap] = useState(false);
-  const [generatedRoadmap, setGeneratedRoadmap] = useState<{title: string, steps: {title: string, desc: string, resources: string[]}[]} | null>(null);
+  const [generatedRoadmap, setGeneratedRoadmap] = useState<{title: string, steps: {title: string, desc: string, resources: string[], subtopics?: string[], projects?: string[], estimatedTime?: string}[]} | null>(null);
   const [roadmapDuration, setRoadmapDuration] = useState<'3' | '6' | '9' | '12'>('6');
   const [roadmapViewMode, setRoadmapViewMode] = useState<'content' | 'visual'>('content');
   const [showCustomStudyPlanInput, setShowCustomStudyPlanInput] = useState(false);
@@ -381,18 +704,27 @@ export const Dashboard: React.FC<DashboardProps> = ({
         steps: [
           {
             title: 'Phase 1: Foundations & Core Tools',
-            desc: `Master the basics required for ${customRoadmapPrompt}. Focus on understanding core frameworks and libraries.`,
-            resources: ['MDN Web Docs / Official Documentation', 'Coursera Introduction Specialization', 'Interactive Tutorials']
+            desc: `Master the basics required for ${customRoadmapPrompt}. Focus on understanding core frameworks, syntax, and tooling.`,
+            resources: ['MDN Web Docs / Official Documentation', 'Coursera Introduction Specialization', 'Interactive Coding Tutorials'],
+            subtopics: ['Core syntax & environment setup', 'Standard library functions', 'Version control (Git) basics', 'Basic debugging tools & console logs'],
+            projects: ['Setup local environment and write 3 basic functional scripts/modules applying the language concepts.'],
+            estimatedTime: '20 hours'
           },
           {
             title: 'Phase 2: Project-Based Application',
-            desc: 'Start building real-world projects. Implement modern paradigms, state management or data modeling.',
-            resources: ['Build a portfolio with 3 distinct projects', 'Contribute to an open-source tool on GitHub', 'Join online hackathons']
+            desc: 'Start building real-world projects. Implement modern paradigms, state management, API endpoints, or structured data models.',
+            resources: ['Build a portfolio with 3 distinct projects', 'Contribute to a community project on GitHub', 'Join dynamic online hackathons'],
+            subtopics: ['Creating structured API endpoints/UI layouts', 'Data handling and storage mechanisms', 'State management & user flows', 'Integrating third-party APIs'],
+            projects: ['Construct a fully functioning application (e.g. CRUD system, frontend app) deploying it to a free hosting tier.'],
+            estimatedTime: '40 hours'
           },
           {
             title: 'Phase 3: Advanced Optimization & Scaling',
-            desc: 'Understand deep architectural concepts, security protocols, cloud deployment, and system scalability constraints.',
-            resources: ['Advanced Systems Design Guidelines', 'DevOps & CI/CD deployment pipelines', 'Mock architectural planning sessions']
+            desc: 'Understand deep architectural concepts, security protocols, automated testing pipelines, cloud deployment, and system scalability constraints.',
+            resources: ['Advanced Systems Design Guidelines', 'DevOps & CI/CD deployment pipelines', 'Mock architectural planning sessions'],
+            subtopics: ['Securing endpoints and data routes', 'Automating deployments with CI/CD', 'Writing integration & mock tests', 'Scaling pipelines & memory optimization'],
+            projects: ['Add comprehensive tests to the Phase 2 app, containerize it with Docker, and configure automated GitHub runner deployments.'],
+            estimatedTime: '30 hours'
           }
         ]
       });
@@ -1073,59 +1405,171 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     /* Standard Content List */
                     !generatedRoadmap ? (
                       getFilteredSteps(activeRoadmap, roadmapDuration).map((step, idx) => (
-                        <div key={step.id} className="p-4 rounded-xl border border-[#13172E] bg-[#090A12] flex items-center justify-between gap-4">
-                          <div className="flex items-center gap-4">
-                            <button
-                              onClick={() => toggleRoadmapNode(step.id)}
-                              className={`w-7 h-7 rounded-full flex items-center justify-center border text-xs font-bold transition-all shrink-0 ${
-                                roadmapProgress[step.id]
-                                  ? 'bg-blue-605 border-blue-500 text-white'
-                                  : 'bg-[#07080F] border-[#13172E] text-slate-500'
-                              }`}
-                            >
-                              {roadmapProgress[step.id] ? <Check className="w-3.5 h-3.5" /> : idx + 1}
-                            </button>
-                            <div className="text-left">
-                              <h4 className="text-xs sm:text-sm font-bold text-white">{step.title}</h4>
-                              <p className="text-[11px] text-slate-400 mt-0.5">{step.desc}</p>
-                              <div className="flex flex-wrap gap-2 mt-2">
+                        <details 
+                          key={step.id} 
+                          className="group border border-[#13172E] bg-[#090A12] rounded-xl overflow-hidden [&_summary::-webkit-details-marker]:hidden"
+                        >
+                          <summary className="p-4 cursor-pointer flex items-center justify-between gap-4 select-none hover:bg-[#13172E]/30 list-none">
+                            <div className="flex items-center gap-4">
+                              <button
+                                type="button"
+                                onClick={(e) => { 
+                                  e.preventDefault(); 
+                                  e.stopPropagation();
+                                  toggleRoadmapNode(step.id); 
+                                }}
+                                className={`w-7 h-7 rounded-full flex items-center justify-center border text-xs font-bold transition-all shrink-0 ${
+                                  roadmapProgress[step.id]
+                                    ? 'bg-blue-600 border-blue-500 text-white'
+                                    : 'bg-[#07080F] border-[#13172E] text-slate-500'
+                                }`}
+                              >
+                                {roadmapProgress[step.id] ? <Check className="w-3.5 h-3.5" /> : idx + 1}
+                              </button>
+                              <div className="text-left">
+                                <h4 className="text-xs sm:text-sm font-bold text-white group-hover:text-blue-400 transition-colors">{step.title}</h4>
+                                <p className="text-[11px] text-slate-400 mt-0.5">{step.desc}</p>
+                              </div>
+                            </div>
+                            
+                            <div className="flex items-center gap-3 shrink-0">
+                              <div className="hidden sm:block text-right">
+                                <span className="block text-[10px] text-slate-500 font-bold uppercase">Status</span>
+                                <span className={`text-[10px] font-bold ${roadmapProgress[step.id] ? 'text-blue-400' : 'text-slate-500'} mt-1 block`}>
+                                  {roadmapProgress[step.id] ? 'Complete' : 'To Do'}
+                                </span>
+                              </div>
+                              <ChevronRight className="w-4 h-4 text-slate-400 transition-transform duration-300 group-open:rotate-90" />
+                            </div>
+                          </summary>
+
+                          <div className="px-12 pb-5 pt-1 border-t border-[#13172E]/50 bg-[#07080F]/50 space-y-4 text-left">
+                            {step.estimatedTime && (
+                              <div className="flex items-center gap-1.5 text-xs text-orange-400 font-semibold pt-2">
+                                <Clock className="w-3.5 h-3.5" />
+                                <span>Estimated Time: {step.estimatedTime}</span>
+                              </div>
+                            )}
+
+                            {step.subtopics && step.subtopics.length > 0 && (
+                              <div className="space-y-1.5">
+                                <h5 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Key Sub-topics to Master</h5>
+                                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                                  {step.subtopics.map((sub, sIdx) => (
+                                    <li key={sIdx} className="text-xs text-slate-300 flex items-start gap-1.5">
+                                      <span className="text-blue-500 mt-0.5">•</span>
+                                      <span>{sub}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+
+                            {step.projects && step.projects.length > 0 && (
+                              <div className="space-y-1.5">
+                                <h5 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Practical Projects / Hands-on</h5>
+                                <div className="space-y-1">
+                                  {step.projects.map((proj, pIdx) => (
+                                    <div key={pIdx} className="text-xs text-slate-300 bg-[#090A12] border border-[#13172E]/40 p-2.5 rounded-lg flex items-start gap-2">
+                                      <Code2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                                      <span>{proj}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            <div className="space-y-1.5">
+                              <h5 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Recommended Resources</h5>
+                              <div className="flex flex-wrap gap-2">
                                 {step.resources.map(res => (
-                                  <span key={res} className="px-2 py-0.5 text-[9px] bg-[#07080F] border border-[#13172E] text-slate-500 rounded-md">
+                                  <a 
+                                    href={`https://www.google.com/search?q=${encodeURIComponent(res + " " + step.title)}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    key={res} 
+                                    className="px-2.5 py-1 text-[10px] bg-[#090A12] border border-[#13172E] text-slate-300 rounded-md flex items-center gap-1 hover:border-blue-500 hover:text-white transition-colors cursor-pointer"
+                                  >
                                     📚 {res}
-                                  </span>
+                                  </a>
                                 ))}
                               </div>
                             </div>
                           </div>
-
-                          <div className="flex items-center gap-4 shrink-0 text-right">
-                            <div className="hidden sm:block">
-                              <span className="block text-[10px] text-slate-500 font-bold uppercase">Status</span>
-                              <span className={`text-[10px] font-bold ${roadmapProgress[step.id] ? 'text-blue-400' : 'text-slate-500'} mt-1 block`}>
-                                {roadmapProgress[step.id] ? 'Complete' : 'To Do'}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
+                        </details>
                       ))
                     ) : (
                       generatedRoadmap.steps.map((step, idx) => (
-                        <div key={idx} className="p-4 rounded-xl border border-[#13172E] bg-[#090A12] flex flex-col gap-2">
-                          <div className="flex items-center gap-3">
-                            <span className="w-6 h-6 rounded-full bg-blue-600/10 border border-blue-500 flex items-center justify-center text-blue-400 text-xs font-bold">
-                              {idx + 1}
-                            </span>
-                            <h4 className="text-xs sm:text-sm font-bold text-white">{step.title}</h4>
-                          </div>
-                          <p className="text-[11px] text-slate-400 pl-9 leading-relaxed">{step.desc}</p>
-                          <div className="pl-9 flex flex-wrap gap-2 pt-1">
-                            {step.resources.map((res, rIdx) => (
-                              <span key={rIdx} className="px-2 py-0.5 text-[9px] bg-[#07080F] border border-[#13172E] text-slate-400 rounded-md">
-                                {res}
+                        <details 
+                          key={idx} 
+                          className="group border border-[#13172E] bg-[#090A12] rounded-xl overflow-hidden [&_summary::-webkit-details-marker]:hidden"
+                        >
+                          <summary className="p-4 cursor-pointer flex items-center justify-between gap-4 select-none hover:bg-[#13172E]/30 list-none">
+                            <div className="flex items-center gap-3">
+                              <span className="w-6 h-6 rounded-full bg-blue-600/10 border border-blue-500 flex items-center justify-center text-blue-400 text-xs font-bold shrink-0">
+                                {idx + 1}
                               </span>
-                            ))}
+                              <h4 className="text-xs sm:text-sm font-bold text-white group-hover:text-blue-400 transition-colors">{step.title}</h4>
+                            </div>
+                            <ChevronRight className="w-4 h-4 text-slate-400 transition-transform duration-300 group-open:rotate-90" />
+                          </summary>
+                          
+                          <div className="px-12 pb-5 pt-1 border-t border-[#13172E]/50 bg-[#07080F]/50 space-y-4 text-left">
+                            <p className="text-[11px] text-slate-400 leading-relaxed pt-2">{step.desc}</p>
+                            
+                            {step.estimatedTime && (
+                              <div className="flex items-center gap-1.5 text-xs text-orange-400 font-semibold">
+                                <Clock className="w-3.5 h-3.5" />
+                                <span>Estimated Time: {step.estimatedTime}</span>
+                              </div>
+                            )}
+
+                            {step.subtopics && step.subtopics.length > 0 && (
+                              <div className="space-y-1.5">
+                                <h5 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Key Sub-topics to Master</h5>
+                                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                                  {step.subtopics.map((sub, sIdx) => (
+                                    <li key={sIdx} className="text-xs text-slate-300 flex items-start gap-1.5">
+                                      <span className="text-blue-500 mt-0.5">•</span>
+                                      <span>{sub}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+
+                            {step.projects && step.projects.length > 0 && (
+                              <div className="space-y-1.5">
+                                <h5 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Practical Projects / Hands-on</h5>
+                                <div className="space-y-1">
+                                  {step.projects.map((proj, pIdx) => (
+                                    <div key={pIdx} className="text-xs text-slate-300 bg-[#090A12] border border-[#13172E]/40 p-2.5 rounded-lg flex items-start gap-2">
+                                      <Code2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                                      <span>{proj}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            <div className="space-y-1.5">
+                              <h5 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Recommended Resources</h5>
+                              <div className="flex flex-wrap gap-2">
+                                {step.resources.map((res, rIdx) => (
+                                  <a 
+                                    href={`https://www.google.com/search?q=${encodeURIComponent(res + " " + step.title)}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    key={rIdx} 
+                                    className="px-2.5 py-1 text-[10px] bg-[#090A12] border border-[#13172E] text-slate-300 rounded-md flex items-center gap-1 hover:border-blue-500 hover:text-white transition-colors cursor-pointer"
+                                  >
+                                    📚 {res}
+                                  </a>
+                                ))}
+                              </div>
+                            </div>
                           </div>
-                        </div>
+                        </details>
                       ))
                     )
                   )}
