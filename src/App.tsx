@@ -172,6 +172,9 @@ export function App() {
       {currentPage === 'dashboard' ? (
         <Dashboard
           user={user}
+          onUpdateUser={(updatedUser) => setUser(updatedUser)}
+          isDarkMode={isDarkMode}
+          onToggleTheme={(dark) => setIsDarkMode(dark)}
           onOpenChat={() => setIsChatOpen(true)}
           onOpenAssessment={() => setIsAssessmentOpen(true)}
           onNavigateHome={() => {

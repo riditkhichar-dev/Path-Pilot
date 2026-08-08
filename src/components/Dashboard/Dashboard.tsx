@@ -33,7 +33,8 @@ import {
   Clock,
   Flame,
   Layers,
-  Code2
+  Code2,
+  Settings
 } from 'lucide-react';
 import { User } from '../../types';
 
@@ -44,6 +45,9 @@ interface DashboardProps {
   onNavigateHome: () => void;
   onLogout: () => void;
   onExploreCareers: () => void;
+  onUpdateUser?: (updatedUser: User) => void;
+  isDarkMode: boolean;
+  onToggleTheme: (dark: boolean) => void;
 }
 
 interface Career {
@@ -619,12 +623,34 @@ export const Dashboard: React.FC<DashboardProps> = ({
   onNavigateHome,
   onLogout,
   onExploreCareers,
+  onUpdateUser,
+  isDarkMode,
+  onToggleTheme,
 }) => {
-  const [activeTab, setActiveTab] = useState<'home' | 'roadmaps' | 'interview' | 'forum'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'roadmaps' | 'interview' | 'forum' | 'settings'>('home');
   const [searchQuery, setSearchQuery] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedCareer, setSelectedCareer] = useState<Career | null>(null);
   const [bookmarkedCareers, setBookmarkedCareers] = useState<string[]>([]);
+
+  // Settings page states
+  const [profileName, setProfileName] = useState(user?.name || '');
+  const [profileBio, setProfileBio] = useState('Passionate student exploring artificial intelligence engineering and building high-performance systems.');
+  const [profileGoal, setProfileGoal] = useState('AI & Machine Learning Specialist');
+  const [profileGithub, setProfileGithub] = useState('https://github.com/student-dev');
+  const [profileLinkedin, setProfileLinkedin] = useState('https://linkedin.com/in/student-dev');
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [enable2FA, setEnable2FA] = useState(false);
+  const [prefTheme, setPrefTheme] = useState<'dark' | 'light'>(isDarkMode ? 'dark' : 'light');
+  const [prefEmailNotifs, setPrefEmailNotifs] = useState(true);
+  const [prefWeeklyReports, setPrefWeeklyReports] = useState(true);
+  const [googleConnected, setGoogleConnected] = useState(true);
+  const [githubConnected, setGithubConnected] = useState(false);
+  const [linkedinConnected, setLinkedinConnected] = useState(false);
+  const [activeSettingsSection, setActiveSettingsSection] = useState<'profile' | 'account' | 'security' | 'preferences' | 'connected'>('profile');
+  const [settingsSuccessMessage, setSettingsSuccessMessage] = useState<string | null>(null);
 
   // Roadmaps State
   const [activeRoadmap, setActiveRoadmap] = useState<'frontend' | 'backend' | 'fullstack' | 'devops' | 'ml'>('frontend');
@@ -862,6 +888,36 @@ export const Dashboard: React.FC<DashboardProps> = ({
     setShowNewPostModal(false);
   };
 
+  // Save Settings handler
+  const handleSaveSettings = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (activeSettingsSection === 'security') {
+      if (newPassword && newPassword !== confirmPassword) {
+        alert("New passwords do not match!");
+        return;
+      }
+    }
+
+    // Construct updated user object for realtime display propagation
+    const updatedUser = {
+      ...user,
+      name: profileName,
+    } as User;
+
+    // Save to local storage cache
+    localStorage.setItem('pathpilot_auth_user', JSON.stringify(updatedUser));
+
+    // Trigger callback
+    if (onUpdateUser) {
+      onUpdateUser(updatedUser);
+    }
+
+    setSettingsSuccessMessage("Settings saved successfully!");
+    setTimeout(() => {
+      setSettingsSuccessMessage(null);
+    }, 3500);
+  };
+
   // Roadmaps checklists
   const toggleRoadmapNode = (nodeId: string) => {
     setRoadmapProgress(prev => ({
@@ -971,6 +1027,18 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 <Briefcase className="w-4 h-4 shrink-0" />
                 <span>Interview Prep</span>
               </button>
+
+              <button
+                onClick={() => setActiveTab('settings')}
+                className={`w-full px-3 py-2.5 rounded-xl text-[12px] font-bold flex items-center gap-3 transition-all ${
+                  activeTab === 'settings' 
+                    ? 'bg-blue-600/10 text-blue-450 border border-blue-500/20' 
+                    : 'text-slate-400 hover:bg-slate-900/60 hover:text-white'
+                }`}
+              >
+                <Settings className="w-4 h-4 shrink-0" />
+                <span>Settings & Profile</span>
+              </button>
             </div>
 
             {/* ADDITIONAL WORK LABELS (From Codexflow reference) */}
@@ -1022,30 +1090,36 @@ export const Dashboard: React.FC<DashboardProps> = ({
         <main className="flex-1 overflow-y-auto p-6 md:p-8 bg-[#07080F] custom-scrollbar">
           
           {/* MOBILE TABS COMPONENT FOR NAVIGATING TAB VIEWS */}
-          <div className="lg:hidden flex bg-[#090A12] p-1.5 rounded-xl border border-[#13172E] mb-6">
+          <div className="lg:hidden flex bg-[#090A12] p-1 rounded-xl border border-[#13172E] mb-6 overflow-x-auto gap-0.5">
             <button 
               onClick={() => setActiveTab('home')} 
-              className={`flex-1 py-2 text-center text-xs font-bold rounded-lg ${activeTab === 'home' ? 'bg-blue-600 text-white' : 'text-slate-400'}`}
+              className={`flex-1 min-w-[65px] py-2 text-center text-[10px] font-bold rounded-lg ${activeTab === 'home' ? 'bg-blue-600 text-white' : 'text-slate-400'}`}
             >
               Dashboard
             </button>
             <button 
               onClick={() => setActiveTab('roadmaps')} 
-              className={`flex-1 py-2 text-center text-xs font-bold rounded-lg ${activeTab === 'roadmaps' ? 'bg-blue-600 text-white' : 'text-slate-400'}`}
+              className={`flex-1 min-w-[65px] py-2 text-center text-[10px] font-bold rounded-lg ${activeTab === 'roadmaps' ? 'bg-blue-600 text-white' : 'text-slate-400'}`}
             >
               Roadmaps
             </button>
             <button 
               onClick={() => setActiveTab('interview')} 
-              className={`flex-1 py-2 text-center text-xs font-bold rounded-lg ${activeTab === 'interview' ? 'bg-blue-600 text-white' : 'text-slate-400'}`}
+              className={`flex-1 min-w-[65px] py-2 text-center text-[10px] font-bold rounded-lg ${activeTab === 'interview' ? 'bg-blue-600 text-white' : 'text-slate-400'}`}
             >
               Interview
             </button>
             <button 
               onClick={() => setActiveTab('forum')} 
-              className={`flex-1 py-2 text-center text-xs font-bold rounded-lg ${activeTab === 'forum' ? 'bg-blue-600 text-white' : 'text-slate-400'}`}
+              className={`flex-1 min-w-[65px] py-2 text-center text-[10px] font-bold rounded-lg ${activeTab === 'forum' ? 'bg-blue-600 text-white' : 'text-slate-400'}`}
             >
               Forum
+            </button>
+            <button 
+              onClick={() => setActiveTab('settings')} 
+              className={`flex-1 min-w-[65px] py-2 text-center text-[10px] font-bold rounded-lg ${activeTab === 'settings' ? 'bg-blue-600 text-white' : 'text-slate-400'}`}
+            >
+              Settings
             </button>
           </div>
 
@@ -1915,6 +1989,416 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     </ul>
                   </div>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* ---------------------------------------------------- */}
+          {/* TAB 5: SETTINGS & PROFILE */}
+          {/* ---------------------------------------------------- */}
+          {activeTab === 'settings' && (
+            <div className="space-y-6 animate-fadeIn">
+              {/* Header section */}
+              <div className="pb-6 border-b border-[#13172E] flex justify-between items-center flex-wrap gap-4">
+                <div className="space-y-1">
+                  <h1 className="text-3xl font-extrabold text-white tracking-tight leading-none">Settings & Profile</h1>
+                  <p className="text-xs sm:text-sm text-slate-400">
+                    Manage your personal account, set preferences, and configure integrations.
+                  </p>
+                </div>
+                {settingsSuccessMessage && (
+                  <div className="px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold rounded-xl animate-scaleUp">
+                    {settingsSuccessMessage}
+                  </div>
+                )}
+              </div>
+
+              {/* Main settings grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                
+                {/* Left tab sub-navigation */}
+                <div className="lg:col-span-1 flex flex-row lg:flex-col overflow-x-auto lg:overflow-x-visible gap-1.5 p-1 bg-[#090A12] lg:bg-transparent rounded-2xl border border-[#13172E] lg:border-none">
+                  {[
+                    { id: 'profile', label: '👤 Profile' },
+                    { id: 'account', label: '⚙️ Account Settings' },
+                    { id: 'security', label: '🔒 Security' },
+                    { id: 'preferences', label: '🎨 Preferences' },
+                    { id: 'connected', label: '🔗 Connected Accounts' }
+                  ].map(tab => (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => setActiveSettingsSection(tab.id as any)}
+                      className={`whitespace-nowrap px-4 py-2.5 rounded-xl text-xs font-bold text-left transition-all flex-1 lg:flex-none ${
+                        activeSettingsSection === tab.id
+                          ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/15'
+                          : 'text-slate-400 hover:bg-[#090A12] hover:text-slate-200 border border-transparent lg:hover:border-[#13172E]'
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Right settings content form */}
+                <div className="lg:col-span-3">
+                  <form onSubmit={handleSaveSettings} className="p-6 md:p-8 rounded-3xl border border-[#13172E] bg-[#090A12] space-y-6">
+                    
+                    {/* SECTION 1: PROFILE */}
+                    {activeSettingsSection === 'profile' && (
+                      <div className="space-y-6 animate-fadeIn text-left">
+                        <div>
+                          <h3 className="text-sm font-bold text-white mb-1">Public Profile</h3>
+                          <p className="text-[11px] text-slate-500">This information will be displayed publicly on the community forums.</p>
+                        </div>
+
+                        {/* Avatar Picker */}
+                        <div className="flex items-center gap-4 p-4 rounded-2xl bg-[#07080F] border border-[#13172E]/40">
+                          <div className="w-16 h-16 rounded-2xl bg-blue-600/10 border border-blue-500/40 flex items-center justify-center text-blue-400 font-extrabold text-xl">
+                            {profileName ? profileName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 'GU'}
+                          </div>
+                          <div>
+                            <span className="block text-xs font-bold text-slate-200">Profile Picture</span>
+                            <span className="block text-[10px] text-slate-500 mt-0.5">Avatars are generated automatically from your initials.</span>
+                          </div>
+                        </div>
+
+                        {/* Profile form fields */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div className="space-y-1.5">
+                            <label className="block text-[10px] uppercase font-bold text-slate-500 tracking-wider">Full Name</label>
+                            <input 
+                              type="text"
+                              value={profileName}
+                              onChange={(e) => setProfileName(e.target.value)}
+                              className="w-full px-4 py-2.5 text-xs bg-[#07080F] border border-[#13172E] rounded-xl outline-none focus:border-blue-500 text-white"
+                            />
+                          </div>
+                          <div className="space-y-1.5">
+                            <label className="block text-[10px] uppercase font-bold text-slate-500 tracking-wider">Career Goal</label>
+                            <input 
+                              type="text"
+                              value={profileGoal}
+                              onChange={(e) => setProfileGoal(e.target.value)}
+                              className="w-full px-4 py-2.5 text-xs bg-[#07080F] border border-[#13172E] rounded-xl outline-none focus:border-blue-500 text-white"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <label className="block text-[10px] uppercase font-bold text-slate-500 tracking-wider">Short Bio</label>
+                          <textarea 
+                            rows={3}
+                            value={profileBio}
+                            onChange={(e) => setProfileBio(e.target.value)}
+                            className="w-full p-4 text-xs bg-[#07080F] border border-[#13172E] rounded-xl outline-none focus:border-blue-500 text-white resize-none leading-relaxed"
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div className="space-y-1.5">
+                            <label className="block text-[10px] uppercase font-bold text-slate-500 tracking-wider">GitHub Username</label>
+                            <input 
+                              type="text"
+                              value={profileGithub}
+                              onChange={(e) => setProfileGithub(e.target.value)}
+                              className="w-full px-4 py-2.5 text-xs bg-[#07080F] border border-[#13172E] rounded-xl outline-none focus:border-blue-500 text-white"
+                            />
+                          </div>
+                          <div className="space-y-1.5">
+                            <label className="block text-[10px] uppercase font-bold text-slate-500 tracking-wider">LinkedIn URL</label>
+                            <input 
+                              type="text"
+                              value={profileLinkedin}
+                              onChange={(e) => setProfileLinkedin(e.target.value)}
+                              className="w-full px-4 py-2.5 text-xs bg-[#07080F] border border-[#13172E] rounded-xl outline-none focus:border-blue-500 text-white"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* SECTION 2: ACCOUNT SETTINGS */}
+                    {activeSettingsSection === 'account' && (
+                      <div className="space-y-6 animate-fadeIn text-left">
+                        <div>
+                          <h3 className="text-sm font-bold text-white mb-1">Account Info</h3>
+                          <p className="text-[11px] text-slate-500">Manage email, billing subscription plan and student metrics.</p>
+                        </div>
+
+                        <div className="space-y-4">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-[#07080F]/50 border border-[#13172E]/40 rounded-2xl">
+                            <div>
+                              <span className="block text-[9px] uppercase font-bold text-slate-500 tracking-wider">Primary Email Address</span>
+                              <span className="block text-xs font-bold text-slate-200 mt-1">{user?.email || 'guest@pathpilot.com'}</span>
+                            </div>
+                            <div>
+                              <span className="block text-[9px] uppercase font-bold text-slate-500 tracking-wider">Unique Student ID</span>
+                              <span className="block text-[10px] font-mono text-slate-400 mt-1">ID_{user?.id || 'GUEST_076'}</span>
+                            </div>
+                          </div>
+
+                          <div className="p-4 bg-gradient-to-r from-blue-900/10 to-indigo-900/10 border border-blue-500/20 rounded-2xl flex justify-between items-center flex-wrap gap-4">
+                            <div className="space-y-0.5">
+                              <span className="block text-[9px] uppercase font-bold text-blue-400 tracking-wider">Current Plan Tier</span>
+                              <span className="block text-xs font-extrabold text-white">PathPilot Premium Student Pro</span>
+                            </div>
+                            <span className="px-3 py-1 bg-blue-600 text-white rounded-lg text-[10px] font-bold">Active Member</span>
+                          </div>
+
+                          <div className="p-4 bg-[#07080F]/30 border border-[#13172E]/30 rounded-2xl space-y-3">
+                            <span className="block text-[9px] uppercase font-bold text-slate-400 tracking-wider">Completed Assessments</span>
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                              <div className="p-3 bg-[#07080F] border border-[#13172E]/50 rounded-xl">
+                                <span className="block text-[10px] text-slate-500">AI Readiness</span>
+                                <span className="text-sm font-extrabold text-emerald-400 mt-1 block">96% Match</span>
+                              </div>
+                              <div className="p-3 bg-[#07080F] border border-[#13172E]/50 rounded-xl">
+                                <span className="block text-[10px] text-slate-500">Frontend Skills</span>
+                                <span className="text-sm font-extrabold text-blue-400 mt-1 block">Level 3</span>
+                              </div>
+                              <div className="p-3 bg-[#07080F] border border-[#13172E]/50 rounded-xl">
+                                <span className="block text-[10px] text-slate-500">Psychometric Score</span>
+                                <span className="text-sm font-extrabold text-indigo-400 mt-1 block">Completed</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* SECTION 3: SECURITY */}
+                    {activeSettingsSection === 'security' && (
+                      <div className="space-y-6 animate-fadeIn text-left">
+                        <div>
+                          <h3 className="text-sm font-bold text-white mb-1">Security & Access</h3>
+                          <p className="text-[11px] text-slate-500">Update password details and enable secure login guards.</p>
+                        </div>
+
+                        <div className="space-y-4">
+                          <div className="space-y-3">
+                            <div className="space-y-1">
+                              <label className="block text-[10px] uppercase font-bold text-slate-500 tracking-wider">Current Password</label>
+                              <input 
+                                type="password" 
+                                placeholder="••••••••" 
+                                value={currentPassword}
+                                onChange={(e) => setCurrentPassword(e.target.value)}
+                                className="w-full px-4 py-2.5 text-xs bg-[#07080F] border border-[#13172E] rounded-xl outline-none focus:border-blue-500 text-white"
+                              />
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              <div className="space-y-1">
+                                <label className="block text-[10px] uppercase font-bold text-slate-500 tracking-wider">New Password</label>
+                                <input 
+                                  type="password" 
+                                  placeholder="Minimum 8 characters" 
+                                  value={newPassword}
+                                  onChange={(e) => setNewPassword(e.target.value)}
+                                  className="w-full px-4 py-2.5 text-xs bg-[#07080F] border border-[#13172E] rounded-xl outline-none focus:border-blue-500 text-white"
+                                />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="block text-[10px] uppercase font-bold text-slate-500 tracking-wider">Confirm New Password</label>
+                                <input 
+                                  type="password" 
+                                  placeholder="Confirm new credentials" 
+                                  value={confirmPassword}
+                                  onChange={(e) => setConfirmPassword(e.target.value)}
+                                  className="w-full px-4 py-2.5 text-xs bg-[#07080F] border border-[#13172E] rounded-xl outline-none focus:border-blue-500 text-white"
+                                />
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="p-4 bg-[#07080F]/50 border border-[#13172E]/40 rounded-2xl flex justify-between items-center gap-4">
+                            <div>
+                              <span className="block text-xs font-bold text-slate-200">Two-Factor Authentication (2FA)</span>
+                              <span className="block text-[10px] text-slate-500 mt-0.5">Protect account with secondary authentication code.</span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => setEnable2FA(!enable2FA)}
+                              className={`w-11 h-6 rounded-full p-1 transition-colors duration-300 outline-none ${
+                                enable2FA ? 'bg-blue-600' : 'bg-[#13172E]'
+                              }`}
+                            >
+                              <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${
+                                enable2FA ? 'translate-x-5' : 'translate-x-0'
+                              }`} />
+                            </button>
+                          </div>
+
+                          <div className="p-4 bg-[#07080F]/30 border border-[#13172E]/30 rounded-2xl space-y-3">
+                            <span className="block text-[9px] uppercase font-bold text-slate-500 tracking-wider">Active Device Sessions</span>
+                            <div className="space-y-2 text-xs">
+                              <div className="flex justify-between items-center py-2 border-b border-[#13172E]/40">
+                                <div>
+                                  <span className="block font-bold text-slate-200">Windows Chrome • Web App</span>
+                                  <span className="block text-[10px] text-emerald-450 mt-0.5">Active Session (Current Device)</span>
+                                </div>
+                                <span className="text-[10px] text-slate-500 font-mono">192.168.1.45</span>
+                              </div>
+                              <div className="flex justify-between items-center py-2">
+                                <div>
+                                  <span className="block font-bold text-slate-300">iPhone 14 Safari • Mobile</span>
+                                  <span className="block text-[10px] text-slate-500 mt-0.5">Last active 2 hours ago</span>
+                                </div>
+                                <span className="text-[10px] text-slate-550 font-mono">102.16.89.21</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* SECTION 4: PREFERENCES */}
+                    {activeSettingsSection === 'preferences' && (
+                      <div className="space-y-6 animate-fadeIn text-left">
+                        <div>
+                          <h3 className="text-sm font-bold text-white mb-1">Preferences</h3>
+                          <p className="text-[11px] text-slate-500">Configure theme rendering and platform notifications.</p>
+                        </div>
+
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <span className="block text-[10px] uppercase font-bold text-slate-500 tracking-wider">Interface Theme</span>
+                            <div className="grid grid-cols-2 gap-4">
+                              <button
+                                type="button"
+                                onClick={() => { setPrefTheme('dark'); onToggleTheme(true); }}
+                                className={`p-4 rounded-2xl border text-xs font-bold transition-all flex flex-col items-center gap-2 ${
+                                  prefTheme === 'dark'
+                                    ? 'bg-blue-600/10 border-blue-500 text-blue-450'
+                                    : 'bg-[#07080F] border-[#13172E] text-slate-400 hover:border-slate-800'
+                                }`}
+                              >
+                                <span className="text-xl">🌙</span>
+                                <span>Dark Space Mode</span>
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => { setPrefTheme('light'); onToggleTheme(false); }}
+                                className={`p-4 rounded-2xl border text-xs font-bold transition-all flex flex-col items-center gap-2 ${
+                                  prefTheme === 'light'
+                                    ? 'bg-blue-600/10 border-blue-500 text-blue-450'
+                                    : 'bg-[#07080F] border-[#13172E] text-slate-400 hover:border-slate-800'
+                                }`}
+                              >
+                                <span className="text-xl">☀️</span>
+                                <span>Standard Light Mode</span>
+                              </button>
+                            </div>
+                          </div>
+
+                          <div className="space-y-3 pt-2">
+                            <span className="block text-[10px] uppercase font-bold text-slate-500 tracking-wider">Email Notifications</span>
+                            <div className="space-y-3">
+                              <label className="flex items-start gap-3 cursor-pointer select-none">
+                                <input 
+                                  type="checkbox"
+                                  checked={prefEmailNotifs}
+                                  onChange={(e) => setPrefEmailNotifs(e.target.checked)}
+                                  className="w-4 h-4 mt-0.5 rounded border-[#13172E] text-blue-600 focus:ring-blue-500/20 bg-[#07080F]"
+                                />
+                                <div>
+                                  <span className="block text-xs font-bold text-slate-200">Roadmap Updates & AI alerts</span>
+                                  <span className="block text-[10px] text-slate-500 mt-0.5">Receive email notifications when AI compiles new milestones or changes.</span>
+                                </div>
+                              </label>
+
+                              <label className="flex items-start gap-3 cursor-pointer select-none">
+                                <input 
+                                  type="checkbox"
+                                  checked={prefWeeklyReports}
+                                  onChange={(e) => setPrefWeeklyReports(e.target.checked)}
+                                  className="w-4 h-4 mt-0.5 rounded border-[#13172E] text-blue-600 focus:ring-blue-500/20 bg-[#07080F]"
+                                />
+                                <div>
+                                  <span className="block text-xs font-bold text-slate-200">Weekly Progress Reports</span>
+                                  <span className="block text-[10px] text-slate-500 mt-0.5">Get a weekly summary of completed curriculum nodes and study recommendations.</span>
+                                </div>
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* SECTION 5: CONNECTED ACCOUNTS */}
+                    {activeSettingsSection === 'connected' && (
+                      <div className="space-y-6 animate-fadeIn text-left">
+                        <div>
+                          <h3 className="text-sm font-bold text-white mb-1">Connected Integration Accounts</h3>
+                          <p className="text-[11px] text-slate-500">Connect third-party services to sync profiles and repository data.</p>
+                        </div>
+
+                        <div className="space-y-4">
+                          {[
+                            {
+                              id: 'google',
+                              title: 'Google Integration Account',
+                              desc: 'Connected to guest@pathpilot.com for direct sign-in.',
+                              connected: googleConnected,
+                              toggle: () => setGoogleConnected(!googleConnected)
+                            },
+                            {
+                              id: 'github',
+                              title: 'GitHub Developer Repository',
+                              desc: 'Sync student microprojects and commits to roadmap milestones.',
+                              connected: githubConnected,
+                              toggle: () => setGithubConnected(!githubConnected)
+                            },
+                            {
+                              id: 'linkedin',
+                              title: 'LinkedIn Professional Profile',
+                              desc: 'Export completed AI curriculum credentials directly to resume.',
+                              connected: linkedinConnected,
+                              toggle: () => setLinkedinConnected(!linkedinConnected)
+                            }
+                          ].map(acc => (
+                            <div key={acc.id} className="p-4 bg-[#07080F]/50 border border-[#13172E]/40 rounded-2xl flex justify-between items-center gap-4 flex-wrap sm:flex-nowrap">
+                              <div className="space-y-1">
+                                <span className="block text-xs font-bold text-slate-200">{acc.title}</span>
+                                <span className="block text-[10px] text-slate-500 leading-normal">{acc.desc}</span>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={acc.toggle}
+                                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
+                                  acc.connected
+                                    ? 'bg-rose-500/10 border border-rose-500/20 text-rose-450 hover:bg-rose-500/20'
+                                    : 'bg-blue-600 hover:bg-blue-500 text-white'
+                                }`}
+                              >
+                                {acc.connected ? 'Disconnect' : 'Connect'}
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Bottom Save Action Button */}
+                    <div className="pt-4 border-t border-[#13172E]/40 flex justify-end gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab('home')}
+                        className="px-4 py-2 border border-[#13172E] hover:bg-slate-900 rounded-xl text-xs font-bold text-slate-400"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-blue-500/10"
+                      >
+                        Save Changes
+                      </button>
+                    </div>
+
+                  </form>
+                </div>
+
               </div>
             </div>
           )}
