@@ -37,7 +37,9 @@ import {
   Settings,
   Bot,
   FileText,
-  ShieldAlert
+  ShieldAlert,
+  GraduationCap,
+  Bell
 } from 'lucide-react';
 import { User } from '../../types';
 import { fetchGroqChatResponse, ChatMessage } from '../../services/groqApi';
@@ -45,6 +47,10 @@ import { AIRoadmapGenerator } from './AIRoadmapGenerator';
 import { ResumeBuilder } from './ResumeBuilder';
 import { LearningResources } from './LearningResources';
 import { CertificatesAchievements } from './CertificatesAchievements';
+import { CollegeRecommendations } from './CollegeRecommendations';
+import { InternshipJobs } from './InternshipJobs';
+import { NotificationsPanel } from './NotificationsPanel';
+
 
 
 
@@ -785,7 +791,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   isDarkMode,
   onToggleTheme,
 }) => {
-  const [activeTab, setActiveTab] = useState<'home' | 'roadmaps' | 'interview' | 'forum' | 'settings' | 'chat' | 'quiz' | 'resume' | 'resources' | 'certificates'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'roadmaps' | 'interview' | 'forum' | 'settings' | 'chat' | 'quiz' | 'resume' | 'resources' | 'certificates' | 'colleges' | 'jobs' | 'notifications'>('home');
   const [searchQuery, setSearchQuery] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedCareer, setSelectedCareer] = useState<Career | null>(null);
@@ -1590,6 +1596,42 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 <span>Certificates</span>
               </button>
 
+              <button
+                onClick={() => setActiveTab('colleges')}
+                className={`w-full px-3 py-2.5 rounded-xl text-[12px] font-bold flex items-center gap-3 transition-all ${
+                  activeTab === 'colleges' 
+                    ? 'bg-blue-600/10 text-blue-450 border border-blue-500/20' 
+                    : 'text-slate-400 hover:bg-slate-900/60 hover:text-white'
+                }`}
+              >
+                <GraduationCap className="w-4 h-4 text-blue-400" />
+                <span>Colleges</span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab('jobs')}
+                className={`w-full px-3 py-2.5 rounded-xl text-[12px] font-bold flex items-center gap-3 transition-all ${
+                  activeTab === 'jobs' 
+                    ? 'bg-blue-600/10 text-blue-450 border border-blue-500/20' 
+                    : 'text-slate-400 hover:bg-slate-900/60 hover:text-white'
+                }`}
+              >
+                <Briefcase className="w-4 h-4 text-emerald-400" />
+                <span>Internships & Jobs</span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab('notifications')}
+                className={`w-full px-3 py-2.5 rounded-xl text-[12px] font-bold flex items-center gap-3 transition-all ${
+                  activeTab === 'notifications' 
+                    ? 'bg-blue-600/10 text-blue-450 border border-blue-500/20' 
+                    : 'text-slate-400 hover:bg-slate-900/60 hover:text-white'
+                }`}
+              >
+                <Bell className="w-4 h-4 text-rose-450" />
+                <span>Alerts & Notifications</span>
+              </button>
+
             </div>
 
           </div>
@@ -1668,6 +1710,24 @@ export const Dashboard: React.FC<DashboardProps> = ({
               className={`flex-1 min-w-[75px] py-2 text-center text-[10px] font-bold rounded-lg shrink-0 ${activeTab === 'certificates' ? 'bg-blue-600 text-white font-extrabold' : 'text-slate-400'}`}
             >
               Certificates
+            </button>
+            <button 
+              onClick={() => setActiveTab('colleges')} 
+              className={`flex-1 min-w-[75px] py-2 text-center text-[10px] font-bold rounded-lg shrink-0 ${activeTab === 'colleges' ? 'bg-blue-600 text-white font-extrabold' : 'text-slate-400'}`}
+            >
+              Colleges
+            </button>
+            <button 
+              onClick={() => setActiveTab('jobs')} 
+              className={`flex-1 min-w-[75px] py-2 text-center text-[10px] font-bold rounded-lg shrink-0 ${activeTab === 'jobs' ? 'bg-blue-600 text-white font-extrabold' : 'text-slate-400'}`}
+            >
+              Jobs
+            </button>
+            <button 
+              onClick={() => setActiveTab('notifications')} 
+              className={`flex-1 min-w-[75px] py-2 text-center text-[10px] font-bold rounded-lg shrink-0 ${activeTab === 'notifications' ? 'bg-blue-600 text-white font-extrabold' : 'text-slate-400'}`}
+            >
+              Alerts
             </button>
             <button 
               onClick={() => setActiveTab('settings')} 
@@ -3106,6 +3166,33 @@ export const Dashboard: React.FC<DashboardProps> = ({
           {activeTab === 'certificates' && (
             <div className="space-y-6 animate-fadeIn">
               <CertificatesAchievements userId={user?.id || 'guest'} isDarkMode={isDarkMode} />
+            </div>
+          )}
+
+          {/* ---------------------------------------------------- */}
+          {/* TAB 11: COLLEGE RECOMMENDATIONS Workspace */}
+          {/* ---------------------------------------------------- */}
+          {activeTab === 'colleges' && (
+            <div className="space-y-6 animate-fadeIn">
+              <CollegeRecommendations />
+            </div>
+          )}
+
+          {/* ---------------------------------------------------- */}
+          {/* TAB 12: INTERNSHIPS & JOBS Workspace */}
+          {/* ---------------------------------------------------- */}
+          {activeTab === 'jobs' && (
+            <div className="space-y-6 animate-fadeIn">
+              <InternshipJobs />
+            </div>
+          )}
+
+          {/* ---------------------------------------------------- */}
+          {/* TAB 13: ALERTS & NOTIFICATIONS Workspace */}
+          {/* ---------------------------------------------------- */}
+          {activeTab === 'notifications' && (
+            <div className="space-y-6 animate-fadeIn">
+              <NotificationsPanel />
             </div>
           )}
         </main>
