@@ -43,6 +43,8 @@ import { fetchGroqChatResponse, ChatMessage } from '../../services/groqApi';
 import { AIRoadmapGenerator } from './AIRoadmapGenerator';
 import { ResumeBuilder } from './ResumeBuilder';
 import { LearningResources } from './LearningResources';
+import { CertificatesAchievements } from './CertificatesAchievements';
+
 
 
 
@@ -780,7 +782,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   isDarkMode,
   onToggleTheme,
 }) => {
-  const [activeTab, setActiveTab] = useState<'home' | 'roadmaps' | 'interview' | 'forum' | 'settings' | 'chat' | 'quiz' | 'resume' | 'resources'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'roadmaps' | 'interview' | 'forum' | 'settings' | 'chat' | 'quiz' | 'resume' | 'resources' | 'certificates'>('home');
   const [searchQuery, setSearchQuery] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedCareer, setSelectedCareer] = useState<Career | null>(null);
@@ -1571,6 +1573,18 @@ export const Dashboard: React.FC<DashboardProps> = ({
               >
                 <BookOpen className="w-4 h-4 text-indigo-400" />
                 <span>Learning Resources</span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab('certificates')}
+                className={`w-full px-3 py-2.5 rounded-xl text-[12px] font-bold flex items-center gap-3 transition-all ${
+                  activeTab === 'certificates' 
+                    ? 'bg-blue-600/10 text-blue-450 border border-blue-500/20' 
+                    : 'text-slate-400 hover:bg-slate-900/60 hover:text-white'
+                }`}
+              >
+                <Award className="w-4 h-4 text-amber-500" />
+                <span>Certificates</span>
               </button>
             </div>
 
@@ -3061,6 +3075,15 @@ export const Dashboard: React.FC<DashboardProps> = ({
           {activeTab === 'resources' && (
             <div className="space-y-6 animate-fadeIn">
               <LearningResources userId={user?.id || 'guest'} isDarkMode={isDarkMode} />
+            </div>
+          )}
+
+          {/* ---------------------------------------------------- */}
+          {/* TAB 10: CERTIFICATES & ACHIEVEMENTS Workspace */}
+          {/* ---------------------------------------------------- */}
+          {activeTab === 'certificates' && (
+            <div className="space-y-6 animate-fadeIn">
+              <CertificatesAchievements userId={user?.id || 'guest'} isDarkMode={isDarkMode} />
             </div>
           )}
         </main>
