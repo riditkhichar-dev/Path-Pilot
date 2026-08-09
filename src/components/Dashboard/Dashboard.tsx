@@ -35,11 +35,14 @@ import {
   Layers,
   Code2,
   Settings,
-  Bot
+  Bot,
+  FileText
 } from 'lucide-react';
 import { User } from '../../types';
 import { fetchGroqChatResponse, ChatMessage } from '../../services/groqApi';
 import { AIRoadmapGenerator } from './AIRoadmapGenerator';
+import { ResumeBuilder } from './ResumeBuilder';
+
 
 
 interface DashboardProps {
@@ -775,7 +778,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   isDarkMode,
   onToggleTheme,
 }) => {
-  const [activeTab, setActiveTab] = useState<'home' | 'roadmaps' | 'interview' | 'forum' | 'settings' | 'chat' | 'quiz'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'roadmaps' | 'interview' | 'forum' | 'settings' | 'chat' | 'quiz' | 'resume'>('home');
   const [searchQuery, setSearchQuery] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedCareer, setSelectedCareer] = useState<Career | null>(null);
@@ -1542,6 +1545,18 @@ export const Dashboard: React.FC<DashboardProps> = ({
               >
                 <Compass className="w-4 h-4 text-indigo-400" />
                 <span>Company Insight</span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab('resume')}
+                className={`w-full px-3 py-2.5 rounded-xl text-[12px] font-bold flex items-center gap-3 transition-all ${
+                  activeTab === 'resume' 
+                    ? 'bg-blue-600/10 text-blue-450 border border-blue-500/20' 
+                    : 'text-slate-400 hover:bg-slate-900/60 hover:text-white'
+                }`}
+              >
+                <FileText className="w-4 h-4 text-emerald-400" />
+                <span>Resume Builder</span>
               </button>
             </div>
 
@@ -3016,6 +3031,15 @@ export const Dashboard: React.FC<DashboardProps> = ({
               </div>
             );
           })()}
+
+          {/* ---------------------------------------------------- */}
+          {/* TAB 8: RESUME BUILDER Workspace */}
+          {/* ---------------------------------------------------- */}
+          {activeTab === 'resume' && (
+            <div className="space-y-6 animate-fadeIn">
+              <ResumeBuilder />
+            </div>
+          )}
         </main>
       </div>
 
