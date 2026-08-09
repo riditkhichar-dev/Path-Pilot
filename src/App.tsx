@@ -18,6 +18,8 @@ import { AuthModal } from './components/Modals/AuthModal';
 import { DeleteAccountModal } from './components/Modals/DeleteAccountModal';
 import { OnboardingModal } from './components/Modals/OnboardingModal';
 import { Dashboard } from './components/Dashboard/Dashboard';
+import { AdminPanel } from './components/Dashboard/AdminPanel';
+
 import { authService } from './services/authService';
 import { User, AuthMode } from './types';
 import { Bot, Sparkles } from 'lucide-react';
@@ -32,11 +34,17 @@ export function App() {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isAssessmentOpen, setIsAssessmentOpen] = useState(false);
   const [isWatchDemoOpen, setIsWatchDemoOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState<'home' | 'explore' | 'dashboard'>(() => {
+  const [isAdminUnlocked, setIsAdminUnlocked] = useState(false);
+  const [adminPasswordInput, setAdminPasswordInput] = useState('');
+  const [adminAuthError, setAdminAuthError] = useState(false);
+
+  const [currentPage, setCurrentPage] = useState<'home' | 'explore' | 'dashboard' | 'admin'>(() => {
     return window.location.hash === '#explore' 
       ? 'explore' 
       : window.location.hash === '#dashboard' 
       ? 'dashboard' 
+      : window.location.hash === '#admin'
+      ? 'admin'
       : 'home';
   });
 
@@ -48,6 +56,9 @@ export function App() {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else if (hash === '#dashboard') {
         setCurrentPage('dashboard');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else if (hash === '#admin') {
+        setCurrentPage('admin');
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
         setCurrentPage('home');
@@ -169,7 +180,99 @@ export function App() {
         />
       )}
 
-      {currentPage === 'dashboard' ? (
+      {currentPage === 'admin' ? (
+        isAdminUnlocked ? (
+          <div className="max-w-6xl mx-auto px-6 py-12">
+            <div className="flex justify-between items-center mb-6">
+              <button
+                onClick={() => {
+                  setIsAdminUnlocked(false);
+                  setAdminPasswordInput('');
+                  setCurrentPage('home');
+                  window.location.hash = '#';
+                }}
+                className="px-4 py-2 bg-[#090A12] border border-slate-800 hover:border-slate-700 text-slate-350 rounded-xl text-xs font-bold transition-all"
+              >
+                ← Return to Home
+              </button>
+              <span className="text-xs text-red-500 font-bold bg-red-500/10 px-3 py-1 rounded-full border border-red-500/20">
+                🔒 Secure Admin Active
+              </span>
+            </div>
+            <AdminPanel />
+          </div>
+        ) : (
+          <div className="min-h-screen flex items-center justify-center bg-[#07080F] p-4 text-left">
+            <div className="w-full max-w-md bg-[#090A12] border border-slate-850 rounded-3xl p-6 md:p-8 space-y-6 shadow-2xl relative overflow-hidden">
+              <div className="text-center space-y-2">
+                <div className="w-16 h-16 rounded-full bg-red-500/10 border border-red-500/25 flex items-center justify-center text-red-500 mx-auto text-2xl">
+                  🛡️
+                </div>
+                <h3 className="text-lg font-bold text-white font-sora">Admin Operator Portal</h3>
+                <p className="text-xs text-slate-400">Enter access key to authorize secure terminal session.</p>
+              </div>
+
+              <div className="space-y-4">
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] uppercase font-bold text-slate-500 tracking-wider">Access Token / Password</label>
+                  <input 
+                    type="password"
+                    placeholder="••••••••••••"
+                    value={adminPasswordInput}
+                    onChange={(e) => {
+                      setAdminPasswordInput(e.target.value);
+                      setAdminAuthError(false);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        if (adminPasswordInput === 'Pathpilot.cc@2026') {
+                          setIsAdminUnlocked(true);
+                          setAdminAuthError(false);
+                        } else {
+                          setAdminAuthError(true);
+                        }
+                      }
+                    }}
+                    className={`w-full px-4 py-2.5 text-xs bg-[#07080F] border rounded-xl outline-none text-white focus:border-red-500 ${
+                      adminAuthError ? 'border-red-500/60 ring-2 ring-red-500/10' : 'border-slate-850'
+                    }`}
+                  />
+                  {adminAuthError && (
+                    <span className="text-[10px] text-red-500 font-bold block mt-1">
+                      Access Denied. Invalid Administrator Credentials.
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex gap-3 pt-2">
+                  <button 
+                    onClick={() => {
+                      setCurrentPage('home');
+                      window.location.hash = '#';
+                    }}
+                    className="flex-1 py-2.5 border border-slate-800 hover:bg-slate-900 text-slate-450 rounded-xl text-xs font-bold text-center transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    onClick={() => {
+                      if (adminPasswordInput === 'Pathpilot.cc@2026') {
+                        setIsAdminUnlocked(true);
+                        setAdminAuthError(false);
+                      } else {
+                        setAdminAuthError(true);
+                      }
+                    }}
+                    className="flex-1 py-2.5 bg-gradient-to-r from-red-600 to-red-750 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-red-500/10 border border-red-500/30"
+                  >
+                    Authenticate
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+      ) : currentPage === 'dashboard' ? (
         <Dashboard
           user={user}
           onUpdateUser={(updatedUser) => setUser(updatedUser)}
