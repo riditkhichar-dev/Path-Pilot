@@ -36,7 +36,8 @@ import {
   Code2,
   Settings,
   Bot,
-  FileText
+  FileText,
+  ShieldAlert
 } from 'lucide-react';
 import { User } from '../../types';
 import { fetchGroqChatResponse, ChatMessage } from '../../services/groqApi';
@@ -44,6 +45,8 @@ import { AIRoadmapGenerator } from './AIRoadmapGenerator';
 import { ResumeBuilder } from './ResumeBuilder';
 import { LearningResources } from './LearningResources';
 import { CertificatesAchievements } from './CertificatesAchievements';
+import { AdminPanel } from './AdminPanel';
+
 
 
 
@@ -782,7 +785,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   isDarkMode,
   onToggleTheme,
 }) => {
-  const [activeTab, setActiveTab] = useState<'home' | 'roadmaps' | 'interview' | 'forum' | 'settings' | 'chat' | 'quiz' | 'resume' | 'resources' | 'certificates'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'roadmaps' | 'interview' | 'forum' | 'settings' | 'chat' | 'quiz' | 'resume' | 'resources' | 'certificates' | 'admin'>('home');
   const [searchQuery, setSearchQuery] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedCareer, setSelectedCareer] = useState<Career | null>(null);
@@ -1585,6 +1588,18 @@ export const Dashboard: React.FC<DashboardProps> = ({
               >
                 <Award className="w-4 h-4 text-amber-500" />
                 <span>Certificates</span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab('admin')}
+                className={`w-full px-3 py-2.5 rounded-xl text-[12px] font-bold flex items-center gap-3 transition-all ${
+                  activeTab === 'admin' 
+                    ? 'bg-red-500/10 text-red-400 border border-red-500/20' 
+                    : 'text-slate-400 hover:bg-slate-900/60 hover:text-white'
+                }`}
+              >
+                <ShieldAlert className="w-4 h-4 text-red-400" />
+                <span>Admin Operations</span>
               </button>
             </div>
 
@@ -3084,6 +3099,15 @@ export const Dashboard: React.FC<DashboardProps> = ({
           {activeTab === 'certificates' && (
             <div className="space-y-6 animate-fadeIn">
               <CertificatesAchievements userId={user?.id || 'guest'} isDarkMode={isDarkMode} />
+            </div>
+          )}
+
+          {/* ---------------------------------------------------- */}
+          {/* TAB 11: ADMIN OPERATIONS Workspace */}
+          {/* ---------------------------------------------------- */}
+          {activeTab === 'admin' && (
+            <div className="space-y-6 animate-fadeIn">
+              <AdminPanel />
             </div>
           )}
         </main>
