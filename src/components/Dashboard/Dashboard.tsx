@@ -1620,42 +1620,60 @@ export const Dashboard: React.FC<DashboardProps> = ({
         <main className="flex-1 overflow-y-auto p-6 md:p-8 bg-[#07080F] custom-scrollbar">
           
           {/* MOBILE TABS COMPONENT FOR NAVIGATING TAB VIEWS */}
-          <div className="lg:hidden flex bg-[#090A12] p-1 rounded-xl border border-[#13172E] mb-6 overflow-x-auto gap-0.5">
+          <div className="lg:hidden flex bg-[#090A12] p-1 rounded-xl border border-[#13172E] mb-6 overflow-x-auto gap-0.5 custom-scrollbar">
             <button 
               onClick={() => setActiveTab('home')} 
-              className={`flex-1 min-w-[65px] py-2 text-center text-[10px] font-bold rounded-lg ${activeTab === 'home' ? 'bg-blue-600 text-white' : 'text-slate-400'}`}
+              className={`flex-1 min-w-[75px] py-2 text-center text-[10px] font-bold rounded-lg shrink-0 ${activeTab === 'home' ? 'bg-blue-600 text-white font-extrabold' : 'text-slate-400'}`}
             >
               Dashboard
             </button>
             <button 
               onClick={() => setActiveTab('roadmaps')} 
-              className={`flex-1 min-w-[65px] py-2 text-center text-[10px] font-bold rounded-lg ${activeTab === 'roadmaps' ? 'bg-blue-600 text-white' : 'text-slate-400'}`}
+              className={`flex-1 min-w-[75px] py-2 text-center text-[10px] font-bold rounded-lg shrink-0 ${activeTab === 'roadmaps' ? 'bg-blue-600 text-white font-extrabold' : 'text-slate-400'}`}
             >
               Roadmaps
             </button>
             <button 
               onClick={() => setActiveTab('interview')} 
-              className={`flex-1 min-w-[65px] py-2 text-center text-[10px] font-bold rounded-lg ${activeTab === 'interview' ? 'bg-blue-600 text-white' : 'text-slate-400'}`}
+              className={`flex-1 min-w-[75px] py-2 text-center text-[10px] font-bold rounded-lg shrink-0 ${activeTab === 'interview' ? 'bg-blue-600 text-white font-extrabold' : 'text-slate-400'}`}
             >
               Interview
             </button>
             <button 
               onClick={() => setActiveTab('forum')} 
-              className={`flex-1 min-w-[65px] py-2 text-center text-[10px] font-bold rounded-lg ${activeTab === 'forum' ? 'bg-blue-600 text-white' : 'text-slate-400'}`}
+              className={`flex-1 min-w-[75px] py-2 text-center text-[10px] font-bold rounded-lg shrink-0 ${activeTab === 'forum' ? 'bg-blue-600 text-white font-extrabold' : 'text-slate-400'}`}
             >
               Forum
             </button>
             <button 
-              onClick={() => setActiveTab('settings')} 
-              className={`flex-1 min-w-[65px] py-2 text-center text-[10px] font-bold rounded-lg ${activeTab === 'settings' ? 'bg-blue-600 text-white' : 'text-slate-400'}`}
-            >
-              Settings
-            </button>
-            <button 
               onClick={() => setActiveTab('quiz')} 
-              className={`flex-1 min-w-[65px] py-2 text-center text-[10px] font-bold rounded-lg ${activeTab === 'quiz' ? 'bg-blue-600 text-white' : 'text-slate-400'}`}
+              className={`flex-1 min-w-[75px] py-2 text-center text-[10px] font-bold rounded-lg shrink-0 ${activeTab === 'quiz' ? 'bg-blue-600 text-white font-extrabold' : 'text-slate-400'}`}
             >
               Quiz
+            </button>
+            <button 
+              onClick={() => setActiveTab('resume')} 
+              className={`flex-1 min-w-[75px] py-2 text-center text-[10px] font-bold rounded-lg shrink-0 ${activeTab === 'resume' ? 'bg-blue-600 text-white font-extrabold' : 'text-slate-400'}`}
+            >
+              Resume
+            </button>
+            <button 
+              onClick={() => setActiveTab('resources')} 
+              className={`flex-1 min-w-[75px] py-2 text-center text-[10px] font-bold rounded-lg shrink-0 ${activeTab === 'resources' ? 'bg-blue-600 text-white font-extrabold' : 'text-slate-400'}`}
+            >
+              Resources
+            </button>
+            <button 
+              onClick={() => setActiveTab('certificates')} 
+              className={`flex-1 min-w-[75px] py-2 text-center text-[10px] font-bold rounded-lg shrink-0 ${activeTab === 'certificates' ? 'bg-blue-600 text-white font-extrabold' : 'text-slate-400'}`}
+            >
+              Certificates
+            </button>
+            <button 
+              onClick={() => setActiveTab('settings')} 
+              className={`flex-1 min-w-[75px] py-2 text-center text-[10px] font-bold rounded-lg shrink-0 ${activeTab === 'settings' ? 'bg-blue-600 text-white font-extrabold' : 'text-slate-400'}`}
+            >
+              Settings
             </button>
           </div>
 
