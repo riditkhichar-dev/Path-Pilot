@@ -414,6 +414,7 @@ export function App() {
         isOpen={isAssessmentOpen}
         onClose={() => setIsAssessmentOpen(false)}
         onOpenChat={() => setIsChatOpen(true)}
+        user={user}
       />
 
       {/* Authentication Modal (Login / Sign Up / Forgot Password) */}

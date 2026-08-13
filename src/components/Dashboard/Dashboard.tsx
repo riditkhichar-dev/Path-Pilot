@@ -3147,7 +3147,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           {/* ---------------------------------------------------- */}
           {activeTab === 'resume' && (
             <div className="space-y-6 animate-fadeIn">
-              <ResumeBuilder />
+              <ResumeBuilder userId={user?.id} />
             </div>
           )}
 

@@ -1,17 +1,21 @@
 import React, { useState } from 'react';
 import { QUIZ_QUESTIONS } from '../../data/mockData';
 import { X, Sparkles, CheckCircle2, ArrowRight, RotateCcw, Compass, Award, FileText } from 'lucide-react';
+import { User } from '../../types';
+import { supabase, isSupabaseConfigured } from '../../services/supabaseClient';
 
 interface AssessmentModalProps {
   isOpen: boolean;
   onClose: () => void;
   onOpenChat: () => void;
+  user: User | null;
 }
 
-export const AssessmentModal: React.FC<AssessmentModalProps> = ({ isOpen, onClose, onOpenChat }) => {
+export const AssessmentModal: React.FC<AssessmentModalProps> = ({ isOpen, onClose, onOpenChat, user }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<number, 'tech' | 'creative' | 'business' | 'science'>>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   if (!isOpen) return null;
 
@@ -19,11 +23,43 @@ export const AssessmentModal: React.FC<AssessmentModalProps> = ({ isOpen, onClos
     setAnswers((prev) => ({ ...prev, [currentStep]: trait }));
   };
 
-  const handleNext = () => {
+  const saveAssessmentToSupabase = async (finalAnswers: typeof answers, trait: string) => {
+    if (!user || !isSupabaseConfigured()) return;
+    setIsSaving(true);
+    try {
+      const counts = { tech: 0, creative: 0, business: 0, science: 0 };
+      Object.values(finalAnswers).forEach((t) => {
+        if (t) counts[t]++;
+      });
+
+      const recommendedCareers = 
+        trait === 'tech' ? ['Machine Learning Engineer', 'Software Architect', 'Data Scientist'] :
+        trait === 'creative' ? ['UI/UX Designer', 'Creative Director', '3D Generalist'] :
+        trait === 'business' ? ['Product Manager', 'Venture Associate', 'Tech Founder'] :
+        ['Biotechnology Researcher', 'Quantum Physicist', 'Data Analyst'];
+
+      const { error } = await supabase.from('career_assessments').insert({
+        user_id: user.id,
+        answers: finalAnswers,
+        trait_scores: counts,
+        recommended_careers: recommendedCareers
+      });
+
+      if (error) throw error;
+    } catch (err) {
+      console.error('Failed to save assessment to Supabase:', err);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleNext = async () => {
     if (currentStep < QUIZ_QUESTIONS.length - 1) {
       setCurrentStep((prev) => prev + 1);
     } else {
       setIsSubmitted(true);
+      const trait = getPrimaryTrait();
+      await saveAssessmentToSupabase(answers, trait);
     }
   };
 

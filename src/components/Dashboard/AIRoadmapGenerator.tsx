@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { supabase, isSupabaseConfigured } from '../../services/supabaseClient';
 import { 
   Sparkles, 
   Layers, 
@@ -130,26 +131,65 @@ export function AIRoadmapGenerator({ userId, isDarkMode }: AIRoadmapGeneratorPro
   const [showWizard, setShowWizard] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   
-  // Load saved roadmaps from LocalStorage on mount
+  // Load saved roadmaps from Supabase or LocalStorage on mount
   useEffect(() => {
-    const key = `pathpilot_saved_roadmaps_${userId || 'guest'}`;
-    const saved = localStorage.getItem(key);
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (parsed && parsed.length > 0) {
-          setRoadmaps(parsed);
-          setSelectedRoadmapId(parsed[0].id);
-        } else {
-          loadDefaultPresets();
+    const loadRoadmaps = async () => {
+      if (userId && userId !== 'guest' && isSupabaseConfigured()) {
+        try {
+          const { data, error } = await supabase
+            .from('career_roadmaps')
+            .select('*')
+            .eq('user_id', userId)
+            .order('created_at', { ascending: true });
+
+          if (error) throw error;
+
+          if (data && data.length > 0) {
+            const mapped: SavedRoadmap[] = data.map(row => {
+              const extra = typeof row.steps === 'string' ? JSON.parse(row.steps) : row.steps;
+              return {
+                id: row.id,
+                title: row.title,
+                description: row.description || '',
+                targetRole: extra.targetRole || row.title,
+                level: extra.level || 'Beginner',
+                durationMonths: extra.durationMonths || 6,
+                weeklyHours: extra.weeklyHours || 15,
+                steps: extra.steps || [],
+                progress: extra.progress || {},
+                subtopicProgress: extra.subtopicProgress || {},
+                projectProgress: extra.projectProgress || {},
+                createdAt: row.created_at || new Date().toISOString()
+              };
+            });
+            setRoadmaps(mapped);
+            setSelectedRoadmapId(mapped[0].id);
+            return;
+          }
+        } catch (err) {
+          console.error('Error fetching roadmaps from Supabase:', err);
         }
-      } catch (e) {
-        console.error(e);
-        loadDefaultPresets();
       }
-    } else {
+
+      // Local storage fallback
+      const key = `pathpilot_saved_roadmaps_${userId || 'guest'}`;
+      const saved = localStorage.getItem(key);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (parsed && parsed.length > 0) {
+            setRoadmaps(parsed);
+            setSelectedRoadmapId(parsed[0].id);
+            return;
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
       loadDefaultPresets();
-    }
+    };
+
+    loadRoadmaps();
   }, [userId]);
 
   const loadDefaultPresets = () => {
@@ -167,10 +207,62 @@ export function AIRoadmapGenerator({ userId, isDarkMode }: AIRoadmapGeneratorPro
     localStorage.setItem(key, JSON.stringify(initialList));
   };
 
-  const saveToLocalStorage = (updatedRoadmaps: SavedRoadmap[]) => {
+  const saveToLocalStorage = async (updatedRoadmaps: SavedRoadmap[]) => {
+    // 1. Update component state
+    setRoadmaps(updatedRoadmaps);
+
+    // 2. Save to LocalStorage
     const key = `pathpilot_saved_roadmaps_${userId || 'guest'}`;
     localStorage.setItem(key, JSON.stringify(updatedRoadmaps));
-    setRoadmaps(updatedRoadmaps);
+
+    // 3. Save to Supabase if logged in
+    if (userId && userId !== 'guest' && isSupabaseConfigured()) {
+      try {
+        for (const rm of updatedRoadmaps) {
+          const isDefault = rm.id.startsWith('default-');
+          const payload = {
+            title: rm.title,
+            description: rm.description,
+            steps: {
+              targetRole: rm.targetRole,
+              level: rm.level,
+              durationMonths: rm.durationMonths,
+              weeklyHours: rm.weeklyHours,
+              steps: rm.steps,
+              progress: rm.progress,
+              subtopicProgress: rm.subtopicProgress,
+              projectProgress: rm.projectProgress
+            },
+            status: 'active'
+          };
+
+          if (isDefault) {
+            const { data, error } = await supabase.from('career_roadmaps').insert({
+              user_id: userId,
+              title: payload.title,
+              description: payload.description,
+              steps: payload.steps,
+              status: payload.status
+            }).select('id').single();
+
+            if (!error && data) {
+              rm.id = data.id; // update default id with real UUID
+            }
+          } else {
+            await supabase.from('career_roadmaps').upsert({
+              id: rm.id,
+              user_id: userId,
+              title: payload.title,
+              description: payload.description,
+              steps: payload.steps,
+              status: payload.status
+            });
+          }
+        }
+      } catch (err) {
+        console.error('Failed to save roadmaps to Supabase:', err);
+      }
+    }
   };
 
   const activeRoadmap = roadmaps.find(r => r.id === selectedRoadmapId) || roadmaps[0];

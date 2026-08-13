@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { supabase, isSupabaseConfigured } from '../../services/supabaseClient';
 import { 
   FileText, 
   Sparkles, 
@@ -47,7 +48,11 @@ interface Project {
 
 type TemplateType = 'modern' | 'elegant' | 'tech';
 
-export function ResumeBuilder() {
+interface ResumeBuilderProps {
+  userId?: string;
+}
+
+export function ResumeBuilder({ userId }: ResumeBuilderProps) {
   const [template, setTemplate] = useState<TemplateType>('modern');
   const [personal, setPersonal] = useState({
     name: 'Alex Rivera',
@@ -98,6 +103,90 @@ export function ResumeBuilder() {
   });
 
   const [isEnhancing, setIsEnhancing] = useState<{ [key: string]: boolean }>({});
+  const [isSaving, setIsSaving] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  // Load resume from Supabase on mount or userId change
+  useEffect(() => {
+    const loadResume = async () => {
+      if (!userId || userId === 'guest' || !isSupabaseConfigured()) return;
+      try {
+        const { data, error } = await supabase
+          .from('resumes')
+          .select('*')
+          .eq('user_id', userId)
+          .limit(1);
+
+        if (error) throw error;
+
+        if (data && data.length > 0) {
+          const row = data[0];
+          if (row.template_preference) setTemplate(row.template_preference as TemplateType);
+          if (row.personal_info) setPersonal(row.personal_info);
+          if (row.education) setEducation(row.education);
+          if (row.experience) setExperience(row.experience);
+          if (row.projects) setProjects(row.projects);
+          if (row.skills) setSkills(row.skills);
+        }
+      } catch (err) {
+        console.error('Error loading resume from Supabase:', err);
+      } finally {
+        setIsLoaded(true);
+      }
+    };
+
+    loadResume();
+  }, [userId]);
+
+  const handleSaveToAccount = async () => {
+    if (!userId || userId === 'guest') {
+      alert('Please sign up or log in to save your resume to your account.');
+      return;
+    }
+    if (!isSupabaseConfigured()) return;
+
+    setIsSaving(true);
+    try {
+      const { data: existing, error: fetchError } = await supabase
+        .from('resumes')
+        .select('id')
+        .eq('user_id', userId)
+        .limit(1);
+
+      if (fetchError) throw fetchError;
+
+      const payload = {
+        user_id: userId,
+        personal_info: personal,
+        education,
+        experience,
+        projects,
+        skills,
+        template_preference: template,
+        updated_at: new Date().toISOString()
+      };
+
+      if (existing && existing.length > 0) {
+        const { error: updateError } = await supabase
+          .from('resumes')
+          .update(payload)
+          .eq('id', existing[0].id);
+        if (updateError) throw updateError;
+      } else {
+        const { error: insertError } = await supabase
+          .from('resumes')
+          .insert(payload);
+        if (insertError) throw insertError;
+      }
+
+      alert('Resume saved successfully to your account!');
+    } catch (err) {
+      console.error('Failed to save resume to Supabase:', err);
+      alert('Failed to save resume. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   // Add Item helpers
   const addEducation = () => {
@@ -225,6 +314,15 @@ export function ResumeBuilder() {
               <option value="tech" className="bg-[#070913]">Developer Monospace</option>
             </select>
           </div>
+
+          <button
+            onClick={handleSaveToAccount}
+            disabled={isSaving}
+            className="px-4 py-2 bg-[#0B0F19] hover:bg-[#151a2d] border border-slate-800 text-slate-200 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shrink-0"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-orange-400" />
+            <span>{isSaving ? 'Saving...' : 'Save to Account'}</span>
+          </button>
 
           <button
             onClick={handlePrint}
