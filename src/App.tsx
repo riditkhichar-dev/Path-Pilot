@@ -96,6 +96,36 @@ export function App() {
     }
   }, [isDarkMode]);
 
+  // Intersection Observer for scroll reveal animations
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('revealed');
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      {
+        threshold: 0.05,
+        rootMargin: '0px 0px -40px 0px',
+      }
+    );
+
+    // Give a minor delay to ensure DOM is fully rendered
+    const timer = setTimeout(() => {
+      const elements = document.querySelectorAll('.reveal-on-scroll');
+      elements.forEach((el) => observer.observe(el));
+    }, 100);
+
+    return () => {
+      clearTimeout(timer);
+      observer.disconnect();
+    };
+  }, [currentPage]);
+
+
   useEffect(() => {
     // Fetch current user from Supabase on mount
     authService.getSupabaseUser().then((currentUser) => {

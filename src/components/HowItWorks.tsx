@@ -55,7 +55,7 @@ export const HowItWorks: React.FC<HowItWorksProps> = ({ onOpenAssessment }) => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto space-y-4 mb-16">
+        <div className="reveal-on-scroll text-center max-w-3xl mx-auto space-y-4 mb-16">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-600 dark:text-blue-300 text-xs font-bold uppercase tracking-wider">
             Simple 4-Step Journey
           </div>
@@ -71,7 +71,7 @@ export const HowItWorks: React.FC<HowItWorksProps> = ({ onOpenAssessment }) => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
           
           {/* Left Steps Menu */}
-          <div className="lg:col-span-6 space-y-4">
+          <div className="reveal-on-scroll lg:col-span-6 space-y-4">
             {steps.map((step) => {
               const Icon = step.icon;
               const isActive = activeStep === step.number;
@@ -82,11 +82,11 @@ export const HowItWorks: React.FC<HowItWorksProps> = ({ onOpenAssessment }) => {
                   className={`p-5 rounded-2xl border transition-all duration-300 cursor-pointer ${
                     isActive
                       ? 'bg-white dark:bg-slate-900 border-blue-500/60 shadow-xl shadow-blue-500/10 dark:shadow-blue-950/40 -translate-x-1'
-                      : 'bg-slate-100/80 dark:bg-slate-950/60 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 opacity-75 hover:opacity-100'
+                      : 'bg-slate-100/80 dark:bg-slate-950/60 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 opacity-75 hover:opacity-100 hover:-translate-x-0.5'
                   }`}
                 >
                   <div className="flex items-start gap-4">
-                    <div className={`p-3 rounded-xl bg-gradient-to-br ${step.color} text-white font-bold shrink-0 shadow-md`}>
+                    <div className={`p-3 rounded-xl bg-gradient-to-br ${step.color} text-white font-bold shrink-0 shadow-md ${isActive ? 'scale-110 shadow-blue-500/20' : ''} transition-transform`}>
                       <Icon className="w-6 h-6" />
                     </div>
 
@@ -111,7 +111,7 @@ export const HowItWorks: React.FC<HowItWorksProps> = ({ onOpenAssessment }) => {
           </div>
 
           {/* Right Visual Stepper Screen */}
-          <div className="lg:col-span-6">
+          <div className="reveal-on-scroll lg:col-span-6">
             <div className="glass-card p-6 sm:p-8 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl relative">
               <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
                 <div className="flex items-center gap-2">
@@ -125,9 +125,9 @@ export const HowItWorks: React.FC<HowItWorksProps> = ({ onOpenAssessment }) => {
                 </span>
               </div>
 
-              <div className="py-8 text-center space-y-6">
-                <div className="inline-flex p-5 rounded-3xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-blue-500 shadow-inner">
-                  {React.createElement(steps[activeStep - 1].icon, { className: "w-12 h-12 text-orange-500 dark:text-orange-400" })}
+              <div key={activeStep} className="py-8 text-center space-y-6 animate-fadeIn">
+                <div className="inline-flex p-5 rounded-3xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-blue-500 shadow-inner hover:scale-105 transition-transform duration-300">
+                  {React.createElement(steps[activeStep - 1].icon, { className: "w-12 h-12 text-orange-500 dark:text-orange-400 animate-float" })}
                 </div>
 
                 <div className="space-y-2 max-w-md mx-auto">
@@ -142,7 +142,7 @@ export const HowItWorks: React.FC<HowItWorksProps> = ({ onOpenAssessment }) => {
                 <div className="pt-4">
                   <button
                     onClick={onOpenAssessment}
-                    className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm rounded-xl transition-all shadow-lg shadow-blue-600/30 inline-flex items-center gap-2"
+                    className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm rounded-xl transition-all shadow-lg hover:shadow-blue-600/50 hover:scale-105 active:scale-95 duration-300 inline-flex items-center gap-2 btn-hover-glow"
                   >
                     Start Step 1 Free Now
                     <ArrowRight className="w-4 h-4" />
@@ -151,6 +151,7 @@ export const HowItWorks: React.FC<HowItWorksProps> = ({ onOpenAssessment }) => {
               </div>
             </div>
           </div>
+
 
         </div>
 

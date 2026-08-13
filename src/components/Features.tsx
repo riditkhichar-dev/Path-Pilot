@@ -51,7 +51,7 @@ export const Features: React.FC<FeaturesProps> = ({ onOpenAssessment, onOpenChat
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto space-y-4 mb-14">
+        <div className="reveal-on-scroll text-center max-w-3xl mx-auto space-y-4 mb-14">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-500 dark:text-orange-400 text-xs font-bold uppercase tracking-wider">
             <Sparkles className="w-3.5 h-3.5" /> Empowering Every Student Step
           </div>
@@ -68,7 +68,7 @@ export const Features: React.FC<FeaturesProps> = ({ onOpenAssessment, onOpenChat
               <button
                 key={filter}
                 onClick={() => setSelectedFilter(filter)}
-                className={`px-5 py-2 text-xs sm:text-sm font-semibold rounded-full transition-all duration-300 ${
+                className={`px-5 py-2 text-xs sm:text-sm font-semibold rounded-full transition-all duration-300 hover:scale-105 active:scale-95 ${
                   selectedFilter === filter
                     ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
                     : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-slate-950 dark:hover:text-white border border-slate-200 dark:border-slate-800'
@@ -91,7 +91,7 @@ export const Features: React.FC<FeaturesProps> = ({ onOpenAssessment, onOpenChat
                   if (feature.id === 'ai-chat') onOpenChat();
                   else onOpenAssessment();
                 }}
-                className="glass-card p-6 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-blue-500/50 transition-all duration-300 group cursor-pointer flex flex-col justify-between hover:-translate-y-1.5 shadow-xl hover:shadow-blue-950/40 relative overflow-hidden"
+                className="reveal-on-scroll glass-card p-6 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-blue-500/50 transition-all duration-500 ease-out group cursor-pointer flex flex-col justify-between hover:-translate-y-2 hover:scale-[1.03] shadow-xl hover:shadow-2xl hover:shadow-blue-500/10 dark:hover:shadow-blue-500/5 relative overflow-hidden"
               >
                 {/* Glow bar on top hover */}
                 <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${feature.color} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
@@ -99,7 +99,7 @@ export const Features: React.FC<FeaturesProps> = ({ onOpenAssessment, onOpenChat
                 <div>
                   {/* Card Header & Tag */}
                   <div className="flex items-center justify-between mb-5">
-                    <div className={`p-3.5 rounded-xl bg-gradient-to-br ${feature.color} text-white shadow-md group-hover:scale-110 transition-transform duration-300`}>
+                    <div className={`p-3.5 rounded-xl bg-gradient-to-br ${feature.color} text-white shadow-md group-hover:scale-110 group-hover:rotate-3 transition-all duration-300`}>
                       <IconComponent className="w-6 h-6" />
                     </div>
                     <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/80 px-2.5 py-1 rounded-full border border-slate-200 dark:border-slate-700">
@@ -119,12 +119,13 @@ export const Features: React.FC<FeaturesProps> = ({ onOpenAssessment, onOpenChat
                 {/* Footer Link */}
                 <div className="pt-6 mt-4 border-t border-slate-200 dark:border-slate-800/60 flex items-center justify-between text-xs font-bold text-blue-600 dark:text-blue-400 group-hover:text-orange-500 dark:group-hover:text-orange-400 transition-colors">
                   <span>Explore Feature</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform duration-300" />
                 </div>
               </div>
             );
           })}
         </div>
+
 
       </div>
     </section>
