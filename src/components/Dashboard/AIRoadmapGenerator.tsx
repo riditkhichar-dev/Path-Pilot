@@ -171,21 +171,7 @@ export function AIRoadmapGenerator({ userId, isDarkMode }: AIRoadmapGeneratorPro
         }
       }
 
-      // Local storage fallback
-      const key = `pathpilot_saved_roadmaps_${userId || 'guest'}`;
-      const saved = localStorage.getItem(key);
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved);
-          if (parsed && parsed.length > 0) {
-            setRoadmaps(parsed);
-            setSelectedRoadmapId(parsed[0].id);
-            return;
-          }
-        } catch (e) {
-          console.error(e);
-        }
-      }
+      // If no data found, load presets
       loadDefaultPresets();
     };
 
@@ -193,7 +179,6 @@ export function AIRoadmapGenerator({ userId, isDarkMode }: AIRoadmapGeneratorPro
   }, [userId]);
 
   const loadDefaultPresets = () => {
-    const key = `pathpilot_saved_roadmaps_${userId || 'guest'}`;
     const initialList: SavedRoadmap[] = DEFAULT_ROADMAPS.map((item, idx) => ({
       ...item,
       id: `default-${idx}`,
@@ -204,18 +189,14 @@ export function AIRoadmapGenerator({ userId, isDarkMode }: AIRoadmapGeneratorPro
     }));
     setRoadmaps(initialList);
     setSelectedRoadmapId(initialList[0].id);
-    localStorage.setItem(key, JSON.stringify(initialList));
   };
 
   const saveToLocalStorage = async (updatedRoadmaps: SavedRoadmap[]) => {
     // 1. Update component state
     setRoadmaps(updatedRoadmaps);
 
-    // 2. Save to LocalStorage
-    const key = `pathpilot_saved_roadmaps_${userId || 'guest'}`;
-    localStorage.setItem(key, JSON.stringify(updatedRoadmaps));
+    // 2. Save to Supabase
 
-    // 3. Save to Supabase if logged in
     if (userId && userId !== 'guest' && isSupabaseConfigured()) {
       try {
         for (const rm of updatedRoadmaps) {

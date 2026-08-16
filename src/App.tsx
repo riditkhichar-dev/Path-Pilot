@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { supabase } from './services/supabaseClient';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { TrustedBy } from './components/TrustedBy';
@@ -162,8 +163,7 @@ export function App() {
       if (currentUser) {
         setUser(currentUser);
         // Check if onboarding completed
-        const completed = localStorage.getItem(`pathpilot_onboarding_completed_${currentUser.id}`);
-        if (!completed) {
+        if (!currentUser.user_metadata?.onboarding_completed) {
           setIsOnboardingOpen(true);
         }
       }
@@ -172,8 +172,7 @@ export function App() {
     const subscription = authService.onAuthStateChange((authUser) => {
       setUser(authUser);
       if (authUser) {
-        const completed = localStorage.getItem(`pathpilot_onboarding_completed_${authUser.id}`);
-        if (!completed) {
+        if (!authUser.user_metadata?.onboarding_completed) {
           setIsOnboardingOpen(true);
         }
       }
@@ -204,8 +203,7 @@ export function App() {
 
   const handleAuthSuccess = (authenticatedUser: User) => {
     setUser(authenticatedUser);
-    const completed = localStorage.getItem(`pathpilot_onboarding_completed_${authenticatedUser.id}`);
-    if (!completed) {
+    if (!authenticatedUser.user_metadata?.onboarding_completed) {
       setIsOnboardingOpen(true);
     } else {
       setCurrentPage('dashboard');
@@ -213,9 +211,12 @@ export function App() {
     }
   };
 
-  const handleOnboardingComplete = () => {
+  const handleOnboardingComplete = async () => {
     if (user) {
-      localStorage.setItem(`pathpilot_onboarding_completed_${user.id}`, 'true');
+      await supabase.auth.updateUser({
+        data: { onboarding_completed: true }
+      });
+      setUser({ ...user, user_metadata: { ...user.user_metadata, onboarding_completed: true } });
     }
     setIsOnboardingOpen(false);
     setCurrentPage('dashboard');

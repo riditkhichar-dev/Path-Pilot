@@ -3,7 +3,6 @@ import { supabase, isSupabaseConfigured } from './supabaseClient';
 import { AuthChangeEvent, Session } from '@supabase/supabase-js';
 
 const STORAGE_KEY = 'pathpilot_auth_user';
-const REGISTERED_USERS_KEY = 'pathpilot_registered_users';
 
 export const authService = {
   // Helper to map Supabase User object to PathPilot User interface
@@ -23,7 +22,6 @@ export const authService = {
     };
   },
 
-  // Get currently authenticated user from localStorage session or active cache
   getCurrentUser(): User | null {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
@@ -33,171 +31,110 @@ export const authService = {
     }
   },
 
-  // Get list of registered demo users
-  getRegisteredUsers(): User[] {
-    try {
-      const stored = localStorage.getItem(REGISTERED_USERS_KEY);
-      return stored ? JSON.parse(stored) : [];
-    } catch {
-      return [];
-    }
-  },
-
-  // Step 9: Get the Current User from Supabase
   async getSupabaseUser(): Promise<User | null> {
-    if (isSupabaseConfigured()) {
-      try {
-        const {
-          data: { user },
-          error,
-        } = await supabase.auth.getUser();
-
-        console.log(user);
-
-        if (error) {
-          console.error('Error fetching current user:', error.message);
-          return null;
-        }
-
-        if (user) {
-          const mappedUser = this.mapSupabaseUser(user);
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(mappedUser));
-
-          // Ensure profile exists in database
-          try {
-            await supabase.from('profiles').upsert({
-              id: mappedUser.id,
-              name: mappedUser.name,
-              email: mappedUser.email,
-              role: mappedUser.role,
-              avatar: mappedUser.avatar,
-              auth_provider: mappedUser.authProvider
-            }, { onConflict: 'id' });
-          } catch (e) {
-            console.error('Failed to upsert profile:', e);
-          }
-
-          return mappedUser;
-        }
-      } catch (err) {
-        console.error('Unexpected error in getSupabaseUser:', err);
-      }
+    if (!isSupabaseConfigured()) {
+      throw new Error('Supabase is not configured.');
     }
 
-    return this.getCurrentUser();
+    try {
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
+
+      if (error) {
+        console.error('Error fetching current user:', error.message);
+        return null;
+      }
+
+      if (user) {
+        // Try to fetch profile to get up-to-date role and name
+        const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+        
+        let mappedUser = this.mapSupabaseUser(user);
+        if (profile) {
+          mappedUser = {
+            ...mappedUser,
+            name: profile.name || mappedUser.name,
+            role: profile.role || mappedUser.role,
+            avatar: profile.avatar || mappedUser.avatar
+          };
+        }
+
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(mappedUser));
+        return mappedUser;
+      }
+    } catch (err) {
+      console.error('Unexpected error in getSupabaseUser:', err);
+    }
+
+    return null;
   },
 
-  // Step 7: Supabase Login with Password
   async login(email: string, password?: string): Promise<User> {
+    if (!isSupabaseConfigured()) {
+      throw new Error('Supabase is not configured.');
+    }
+
     const cleanEmail = email.trim().toLowerCase();
-
-    if (isSupabaseConfigured() && password) {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: cleanEmail,
-        password,
-      });
-
-      if (error) {
-        // Standardize error message when account does not exist or credentials are bad
-        if (
-          error.message.toLowerCase().includes('invalid login credentials') ||
-          error.message.toLowerCase().includes('user not found')
-        ) {
-          throw new Error('Account does not exist with this email. Please create an account first by signing up.');
-        }
-        throw new Error(error.message);
-      }
-
-      if (data.user) {
-        const user = this.mapSupabaseUser(data.user);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
-        return user;
-      }
-    }
-
-    // Demo / Fallback Login mode when Supabase credentials are not active
-    await new Promise((resolve) => setTimeout(resolve, 600));
-
-    const registeredUsers = this.getRegisteredUsers();
-    const existingUser = registeredUsers.find((u) => u.email.toLowerCase() === cleanEmail);
-
-    // If demo account is not registered and is not default demo account, throw error asking user to sign up
-    if (!existingUser && cleanEmail !== 'demo.student@pathpilot.ai') {
-      throw new Error('Account does not exist with this email. Please create an account first by signing up.');
-    }
-
-    const nameFromEmail = cleanEmail.split('@')[0].replace(/[._-]/g, ' ');
-    const formattedName = nameFromEmail.charAt(0).toUpperCase() + nameFromEmail.slice(1);
-
-    const user: User = existingUser || {
-      id: `usr_${Math.random().toString(36).substr(2, 9)}`,
-      name: formattedName || 'PathPilot Student',
+    const { data, error } = await supabase.auth.signInWithPassword({
       email: cleanEmail,
-      role: 'College Student',
-      avatar: `https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80`,
-      authProvider: 'email',
-      createdAt: new Date().toISOString(),
-    };
+      password: password || '',
+    });
 
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
-    return user;
+    if (error) {
+      if (
+        error.message.toLowerCase().includes('invalid login credentials') ||
+        error.message.toLowerCase().includes('user not found')
+      ) {
+        throw new Error('Account does not exist with this email. Please create an account first by signing up.');
+      }
+      throw new Error(error.message);
+    }
+
+    if (data.user) {
+      const user = this.mapSupabaseUser(data.user);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+      return user;
+    }
+
+    throw new Error('Login failed.');
   },
 
-  // Email / Password Sign Up
   async signup(name: string, email: string, password?: string, role = 'College Student'): Promise<User> {
-    const cleanEmail = email.trim().toLowerCase();
-
-    if (isSupabaseConfigured() && password) {
-      const { data, error } = await supabase.auth.signUp({
-        email: cleanEmail,
-        password,
-        options: {
-          data: {
-            name,
-            full_name: name,
-            role,
-          },
-        },
-      });
-
-      if (error) {
-        throw new Error(error.message);
-      }
-
-      if (data.user) {
-        const user = this.mapSupabaseUser(data.user, role);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
-        return user;
-      }
+    if (!isSupabaseConfigured()) {
+      throw new Error('Supabase is not configured.');
     }
 
-    // Demo / Fallback mode registration
-    await new Promise((resolve) => setTimeout(resolve, 600));
-    const user: User = {
-      id: `usr_${Math.random().toString(36).substr(2, 9)}`,
-      name,
+    const cleanEmail = email.trim().toLowerCase();
+    const { data, error } = await supabase.auth.signUp({
       email: cleanEmail,
-      role: role || 'Student',
-      avatar: `https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80`,
-      authProvider: 'email',
-      createdAt: new Date().toISOString(),
-    };
+      password: password || '',
+      options: {
+        data: {
+          name,
+          full_name: name,
+          role,
+        },
+      },
+    });
 
-    // Save to registered users list
-    const registeredUsers = this.getRegisteredUsers();
-    const updatedUsers = [...registeredUsers.filter((u) => u.email.toLowerCase() !== cleanEmail), user];
-    localStorage.setItem(REGISTERED_USERS_KEY, JSON.stringify(updatedUsers));
+    if (error) {
+      throw new Error(error.message);
+    }
 
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
-    return user;
+    if (data.user) {
+      const user = this.mapSupabaseUser(data.user, role);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+      return user;
+    }
+    
+    throw new Error('Signup failed.');
   },
 
-  // Google OAuth Login
   async loginWithGoogle(): Promise<User> {
     if (!isSupabaseConfigured()) {
-      throw new Error(
-        'Supabase is not configured. Please set your VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your .env file to enable live Google OAuth login.'
-      );
+      throw new Error('Supabase is not configured.');
     }
 
     const { error } = await supabase.auth.signInWithOAuth({
@@ -219,12 +156,9 @@ export const authService = {
     };
   },
 
-  // GitHub OAuth Login
   async loginWithGithub(): Promise<User> {
     if (!isSupabaseConfigured()) {
-      throw new Error(
-        'Supabase is not configured. Please set your VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your .env file to enable live GitHub OAuth login.'
-      );
+      throw new Error('Supabase is not configured.');
     }
 
     const { error } = await supabase.auth.signInWithOAuth({
@@ -246,26 +180,22 @@ export const authService = {
     };
   },
 
-  // Step 11: Reset Password with Supabase
   async resetPassword(email: string): Promise<boolean> {
-    if (isSupabaseConfigured()) {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
-      });
-
-      if (error) {
-        throw new Error(error.message);
-      }
-
-      return true;
+    if (!isSupabaseConfigured()) {
+      throw new Error('Supabase is not configured.');
     }
 
-    // Demo / Fallback mode
-    await new Promise((resolve) => setTimeout(resolve, 600));
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
     return true;
   },
 
-  // Step 8: Supabase Logout / Sign Out
   async logout(): Promise<void> {
     if (isSupabaseConfigured()) {
       try {
@@ -280,36 +210,26 @@ export const authService = {
     localStorage.removeItem(STORAGE_KEY);
   },
 
-  // Delete Account
   async deleteAccount(): Promise<void> {
-    if (isSupabaseConfigured()) {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          // Attempt to delete user via RPC (requires setting up 'delete_user' RPC in Supabase)
-          const { error: rpcError } = await supabase.rpc('delete_user');
-          if (rpcError) {
-             // Fallback: Delete from profiles table (assuming RLS allows users to delete their own profile)
-             await supabase.from('profiles').delete().eq('id', user.id);
-          }
-          await supabase.auth.signOut();
+    if (!isSupabaseConfigured()) {
+      throw new Error('Supabase is not configured.');
+    }
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { error: rpcError } = await supabase.rpc('delete_user');
+        if (rpcError) {
+           await supabase.from('profiles').delete().eq('id', user.id);
         }
-      } catch (err) {
-        console.error('Error deleting user from supabase:', err);
+        await supabase.auth.signOut();
       }
-    } else {
-      // Demo / Fallback mode
-      const current = this.getCurrentUser();
-      if (current) {
-        const registeredUsers = this.getRegisteredUsers();
-        const updatedUsers = registeredUsers.filter(u => u.id !== current.id && u.email !== current.email);
-        localStorage.setItem(REGISTERED_USERS_KEY, JSON.stringify(updatedUsers));
-      }
+    } catch (err) {
+      console.error('Error deleting user from supabase:', err);
     }
     localStorage.removeItem(STORAGE_KEY);
   },
 
-  // Step 10: Listen for Auth Changes with Supabase
   onAuthStateChange(
     callback: (user: User | null, session?: Session | null, event?: AuthChangeEvent) => void
   ) {
@@ -317,29 +237,30 @@ export const authService = {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event: AuthChangeEvent, session: Session | null) => {
-        console.log(event);
-        console.log(session);
-
         if (session?.user) {
-          const user = this.mapSupabaseUser(session.user);
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
-
-          // Ensure profile exists in database on sign in
+          let user = this.mapSupabaseUser(session.user);
+          
           if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
             try {
+              // Try to insert/upsert the profile
               await supabase.from('profiles').upsert({
                 id: user.id,
                 name: user.name,
                 email: user.email,
                 role: user.role,
-                avatar: user.avatar,
-                auth_provider: user.authProvider
+                avatar: user.avatar
               }, { onConflict: 'id' });
+              
+              const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+              if (profile) {
+                user = { ...user, name: profile.name || user.name, role: profile.role || user.role, avatar: profile.avatar || user.avatar };
+              }
             } catch (e) {
               console.error('Failed to upsert profile on auth change:', e);
             }
           }
-
+          
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
           callback(user, session, event);
         } else {
           localStorage.removeItem(STORAGE_KEY);
@@ -351,7 +272,6 @@ export const authService = {
     return subscription;
   },
 
-  // Step 13: Protect Routes / Verify Authentication
   async requireAuth(onUnauthorized?: () => void): Promise<User | null> {
     if (isSupabaseConfigured()) {
       const {
@@ -362,30 +282,18 @@ export const authService = {
         if (onUnauthorized) onUnauthorized();
         return null;
       }
-
       return this.mapSupabaseUser(user);
     }
 
-    const current = this.getCurrentUser();
-    if (!current) {
-      if (onUnauthorized) onUnauthorized();
-      return null;
-    }
-    return current;
+    return null;
   },
 
-  // Step 14: Access the Logged-in User Anywhere via Supabase Session
   async getSession(): Promise<Session | null> {
     if (isSupabaseConfigured()) {
       try {
         const {
           data: { session },
         } = await supabase.auth.getSession();
-
-        if (session?.user?.email) {
-          console.log(session.user.email);
-        }
-
         return session;
       } catch (err) {
         console.error('Error fetching Supabase session:', err);
@@ -394,4 +302,3 @@ export const authService = {
     return null;
   }
 };
-

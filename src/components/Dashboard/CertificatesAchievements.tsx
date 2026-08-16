@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { supabase } from '../../services/supabaseClient';
 import { 
   Award, 
   CheckCircle, 
@@ -50,48 +51,44 @@ export function CertificatesAchievements({ userId, isDarkMode }: CertificatesAch
   const [activeCert, setActiveCert] = useState<Certificate | null>(null);
 
   useEffect(() => {
-    // 1. Load Quiz Attempts
-    let quizCount = 0;
-    let avgScore = 0;
-    const quizAttemptsStr = localStorage.getItem('pathpilot_quiz_attempts');
-    if (quizAttemptsStr) {
-      try {
-        const attempts = JSON.parse(quizAttemptsStr);
-        quizCount = attempts.length;
+    const fetchStats = async () => {
+      if (!userId || userId === 'guest') return;
+
+      let quizCount = 0;
+      let avgScore = 0;
+      let roadmapsCount = 0;
+      let stepsCompleted = 0;
+
+      // 1. Load Quiz Attempts
+      const { data: quizzes } = await supabase.from('quiz_attempts').select('score').eq('user_id', userId);
+      if (quizzes) {
+        quizCount = quizzes.length;
         if (quizCount > 0) {
-          const total = attempts.reduce((acc: number, curr: any) => acc + (curr.score || 0), 0);
+          const total = quizzes.reduce((acc, curr) => acc + (curr.score || 0), 0);
           avgScore = Math.round(total / quizCount);
         }
-      } catch (e) {
-        console.error(e);
       }
-    }
 
-    // 2. Load Roadmaps & Steps Completed
-    let roadmapsCount = 0;
-    let stepsCompleted = 0;
-    const roadmapsKey = `pathpilot_saved_roadmaps_${userId || 'guest'}`;
-    const roadmapsStr = localStorage.getItem(roadmapsKey);
-    if (roadmapsStr) {
-      try {
-        const roadmaps = JSON.parse(roadmapsStr);
+      // 2. Load Roadmaps & Steps Completed
+      const { data: roadmaps } = await supabase.from('career_roadmaps').select('steps').eq('user_id', userId);
+      if (roadmaps) {
         roadmapsCount = roadmaps.length;
-        roadmaps.forEach((rm: any) => {
-          if (rm.progress) {
-            stepsCompleted += Object.values(rm.progress).filter(v => v === true).length;
+        roadmaps.forEach(rm => {
+          const extra = typeof rm.steps === 'string' ? JSON.parse(rm.steps) : rm.steps;
+          if (extra && extra.progress) {
+            stepsCompleted += Object.values(extra.progress).filter(v => v === true).length;
           }
         });
-      } catch (e) {
-        console.error(e);
       }
-    }
 
-    setStats({
-      quizzesCompleted: quizCount,
-      roadmapsGenerated: roadmapsCount,
-      completedSteps: stepsCompleted,
-      averageScore: avgScore
-    });
+      setStats({
+        quizzesCompleted: quizCount,
+        roadmapsGenerated: roadmapsCount,
+        completedSteps: stepsCompleted,
+        averageScore: avgScore
+      });
+    };
+    fetchStats();
   }, [userId]);
 
   // Define Badges based on Stats

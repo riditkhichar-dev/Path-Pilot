@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { supabase } from '../../services/supabaseClient';
 import { 
   LayoutDashboard, 
   Compass, 
@@ -802,23 +803,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<{ [qIdx: number]: number }>({});
   const [quizResult, setQuizResult] = useState<{ matchScore: number; matchProfile: string; strengths: string[]; improvements: string[] } | null>(null);
-  const [quizAttempts, setQuizAttempts] = useState<QuizAttempt[]>(() => {
-    const saved = localStorage.getItem('pathpilot_quiz_attempts');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {}
-    }
-    return [
-      {
-        quizId: 'quiz-1',
-        quizTitle: '💻 Tech Career Aptitude Test',
-        score: 92,
-        matchProfile: 'Machine Learning Engineer',
-        date: 'August 6, 2026'
-      }
-    ];
-  });
+  const [quizAttempts, setQuizAttempts] = useState<QuizAttempt[]>([]);
 
   // Settings page states
   const [profileName, setProfileName] = useState(user?.name || '');
@@ -840,68 +825,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const [settingsSuccessMessage, setSettingsSuccessMessage] = useState<string | null>(null);
 
   // Chat page states
-  const [chatSessions, setChatSessions] = useState<ChatSession[]>(() => {
-    const saved = localStorage.getItem('pathpilot_chat_sessions');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        console.error(e);
-      }
-    }
-    return [
-      {
-        id: 'session-1',
-        title: '🤖 AI Engineering Career Path',
-        timestamp: '10:30 AM',
-        isSaved: true,
-        messages: [
-          {
-            id: 'msg-1',
-            sender: 'ai',
-            text: 'Hello! I see you are interested in becoming a **Machine Learning Engineer**. How can I help you map out your stream choice or course curricula today?',
-            timestamp: '10:28 AM'
-          },
-          {
-            id: 'msg-2',
-            sender: 'user',
-            text: 'I am in class 11. What computer science concepts should I study first?',
-            timestamp: '10:29 AM'
-          },
-          {
-            id: 'msg-3',
-            sender: 'ai',
-            text: 'Excellent start! At your stage, prioritize learning **Python** basics (control flows, functions, lists) and **fundamental mathematics** (basic linear algebra and statistics). Would you like a weekly curriculum list for Python?',
-            timestamp: '10:30 AM'
-          }
-        ]
-      },
-      {
-        id: 'session-2',
-        title: '📄 Resume Formatting Advice',
-        timestamp: 'Yesterday',
-        messages: [
-          {
-            id: 'msg-4',
-            sender: 'ai',
-            text: 'Welcome! Share your draft resume outline or bullet points, and I will show you how to optimize them for **Applicant Tracking Systems (ATS)**.',
-            timestamp: 'Yesterday'
-          }
-        ]
-      }
-    ];
-  });
+  const [chatSessions, setChatSessions] = useState<ChatSession[]>([]);
   
-  const [activeSessionId, setActiveSessionId] = useState<string>(() => {
-    const saved = localStorage.getItem('pathpilot_chat_sessions');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (parsed.length > 0) return parsed[0].id;
-      } catch (e) {}
-    }
-    return 'session-1';
-  });
+  const [activeSessionId, setActiveSessionId] = useState<string>('');
 
   const [chatInput, setChatInput] = useState('');
   const [isChatLoading, setIsChatLoading] = useState(false);
@@ -1174,9 +1100,55 @@ export const Dashboard: React.FC<DashboardProps> = ({
     }, 3500);
   };
 
-  // Save chat session list to local storage
-  const saveChatSessionsToStorage = (updatedSessions: ChatSession[]) => {
-    localStorage.setItem('pathpilot_chat_sessions', JSON.stringify(updatedSessions));
+  // Fetch data from Supabase on mount
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const fetchData = async () => {
+      // Fetch quiz attempts
+      const { data: qData } = await supabase.from('quiz_attempts').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
+      if (qData) {
+        setQuizAttempts(qData.map(d => ({
+          quizId: d.quiz_id,
+          quizTitle: d.details?.quizTitle || 'Quiz',
+          score: d.score,
+          matchProfile: d.recommendation,
+          date: new Date(d.created_at).toLocaleDateString()
+        })));
+      }
+
+      // Fetch chat sessions
+      const { data: cData } = await supabase.from('chat_sessions').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
+      if (cData) {
+        const mapped = cData.map(d => ({
+          id: d.id,
+          title: d.title,
+          timestamp: d.snippet,
+          isSaved: d.role === 'saved',
+          messages: d.messages || []
+        }));
+        setChatSessions(mapped);
+        if (mapped.length > 0 && !activeSessionId) {
+          setActiveSessionId(mapped[0].id);
+        }
+      }
+    };
+    fetchData();
+  }, [user?.id]);
+
+  // Save chat session list to Supabase
+  const saveChatSessionsToStorage = async (updatedSessions: ChatSession[]) => {
+    if (!user?.id) return;
+    const rows = updatedSessions.map(s => ({
+      id: s.id,
+      user_id: user.id,
+      title: s.title,
+      role: s.isSaved ? 'saved' : 'normal',
+      snippet: s.timestamp,
+      messages: s.messages,
+      created_at: new Date().toISOString()
+    }));
+    await supabase.from('chat_sessions').upsert(rows);
   };
 
   // Toggle Save Session (star/bookmark)
@@ -1390,7 +1362,17 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
     const updatedAttempts = [newAttempt, ...quizAttempts];
     setQuizAttempts(updatedAttempts);
-    localStorage.setItem('pathpilot_quiz_attempts', JSON.stringify(updatedAttempts));
+    
+    if (user?.id) {
+      supabase.from('quiz_attempts').insert([{
+        user_id: user.id,
+        quiz_id: quiz.id,
+        score: score,
+        total_questions: quiz.questions.length,
+        recommendation: bestCareer,
+        details: { quizTitle: quiz.title }
+      }]).then();
+    }
   };
 
   // Reset Quiz

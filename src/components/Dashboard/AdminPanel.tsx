@@ -454,6 +454,30 @@ export function AdminPanel() {
                     className="rounded text-red-500 focus:ring-0 cursor-pointer"
                   />
                 </div>
+
+                <div className="mt-8 pt-6 border-t border-red-500/20">
+                  <h4 className="text-xs font-bold text-red-500 uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4" />
+                    Danger Zone
+                  </h4>
+                  <div className="flex items-center justify-between p-4 bg-red-500/5 border border-red-500/20 rounded-xl">
+                    <div className="space-y-1">
+                      <span className="text-xs font-semibold text-white">Factory Reset</span>
+                      <p className="text-[10px] text-slate-400">Permanently deletes all users, progress, data, and settings from the local database.</p>
+                    </div>
+                    <button 
+                      onClick={() => {
+                        if (window.confirm('Are you absolutely sure? This will wipe all data on the website.')) {
+                          localStorage.clear();
+                          window.location.href = '/';
+                        }
+                      }}
+                      className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg text-xs font-bold transition-colors"
+                    >
+                      Wipe All Data
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           )}

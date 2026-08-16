@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { supabase } from '../../services/supabaseClient';
 import { 
   BookOpen, 
   Sparkles, 
@@ -113,23 +114,30 @@ export function LearningResources({ userId, isDarkMode }: LearningResourcesProps
   const [isFinding, setIsFinding] = useState(false);
   const [aiSuggestions, setAiSuggestions] = useState<Resource[]>([]);
 
-  // Load bookmarks on mount
+  // Load bookmarks from Supabase on mount
   useEffect(() => {
-    const key = `pathpilot_bookmarked_resources_${userId || 'guest'}`;
-    const saved = localStorage.getItem(key);
-    if (saved) {
-      try {
-        setBookmarks(JSON.parse(saved));
-      } catch (e) {
-        console.error(e);
+    const loadBookmarks = async () => {
+      if (!userId || userId === 'guest') return;
+      const { data, error } = await supabase.from('bookmarks').select('resource_id').eq('user_id', userId);
+      if (!error && data) {
+        setBookmarks(data.map(d => d.resource_id));
       }
-    }
+    };
+    loadBookmarks();
   }, [userId]);
 
-  const saveBookmarks = (newBookmarks: string[]) => {
-    const key = `pathpilot_bookmarked_resources_${userId || 'guest'}`;
-    localStorage.setItem(key, JSON.stringify(newBookmarks));
+  const saveBookmarks = async (newBookmarks: string[]) => {
     setBookmarks(newBookmarks);
+    
+    if (!userId || userId === 'guest') return;
+    
+    // Simplest sync approach: delete all existing and insert new ones
+    await supabase.from('bookmarks').delete().eq('user_id', userId);
+    if (newBookmarks.length > 0) {
+      await supabase.from('bookmarks').insert(
+        newBookmarks.map(resId => ({ user_id: userId, resource_id: resId }))
+      );
+    }
   };
 
   const toggleBookmark = (id: string) => {
