@@ -39,22 +39,52 @@ export function App() {
   const [adminAuthError, setAdminAuthError] = useState(false);
 
   const [currentPage, setCurrentPage] = useState<'home' | 'explore' | 'dashboard' | 'admin'>(() => {
-    return window.location.hash === '#explore' 
-      ? 'explore' 
-      : window.location.hash === '#dashboard' 
-      ? 'dashboard' 
-      : window.location.hash === '#admin'
-      ? 'admin'
-      : 'home';
+    const currentUser = authService.getCurrentUser();
+    const hash = window.location.hash;
+    if (hash === '#explore') return currentUser ? 'explore' : 'home';
+    if (hash === '#dashboard') return currentUser ? 'dashboard' : 'home';
+    if (hash === '#admin') return 'admin';
+    return 'home';
   });
+
+  // Check on mount if we tried to access protected route without auth
+  useEffect(() => {
+    const hash = window.location.hash;
+    const currentUser = authService.getCurrentUser();
+    if ((hash === '#explore' || hash === '#dashboard') && !currentUser) {
+      window.location.hash = '';
+      setCurrentPage('home');
+      // Timeout needed to let modal states initialize properly
+      setTimeout(() => {
+        setIsAuthOpen(true);
+        setAuthMode('login');
+      }, 0);
+    }
+  }, []);
 
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash;
+      const currentUser = authService.getCurrentUser();
+
       if (hash === '#explore') {
+        if (!currentUser) {
+          window.location.hash = '';
+          setCurrentPage('home');
+          setIsAuthOpen(true);
+          setAuthMode('login');
+          return;
+        }
         setCurrentPage('explore');
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else if (hash === '#dashboard') {
+        if (!currentUser) {
+          window.location.hash = '';
+          setCurrentPage('home');
+          setIsAuthOpen(true);
+          setAuthMode('login');
+          return;
+        }
         setCurrentPage('dashboard');
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else if (hash === '#admin') {
